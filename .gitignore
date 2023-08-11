@@ -1,0 +1,6 @@
+*.*
+!*.asm
+!*.inc
+!*.bat
+!.gitignore
+!Makefile
