@@ -1,6 +1,8 @@
 *.*
 !*.asm
 !*.inc
+!*.c
+!*.h
 !*.bat
 !.gitignore
 !Makefile
