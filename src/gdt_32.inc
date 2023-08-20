@@ -3,6 +3,9 @@
 
 [bits 16]
 
+;-----------------------------------------------------
+;   Global Discriptor Table, each entry is 8 bytes
+;-----------------------------------------------------
 gdt_start:
     ; the GDT starts with a null 8-byte
     dd 0x0 ; 4 byte

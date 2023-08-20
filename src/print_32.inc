@@ -3,20 +3,42 @@
 
 [bits 32]
 
-VIDEO_MEMORY equ 0xB8000
-VIDEO_MEMORY_LIMIT equ 0xB9280
-WHITE_ON_BLACK equ 0x0E ; the color byte for each character
+%define VIDEO_MEMORY 0xB8000
+%define VIDEO_MEMORY_LIMIT 0xB8FA0
+%define VIDEO_COLS 80
+%define VIDEO_ROWS 25
+%define CHAR_ATTRIBUTE 0x0E
 
+print_hex_mem: db "00000000", 0
+print_integer_mem: db "0000000000", 0
+print_binary_mem: times 32 db "0"
+db 0
+
+cureent_char: dd 0xb8000
+cureent_x: dd 0
+cureent_y: dd 0
+
+;-------------------------------------
+;   Print string pointed by EBX
+;-------------------------------------
 print:
-    pusha
+    pushad
+
     mov edx, [cureent_char]
+	mov ah, CHAR_ATTRIBUTE
 	
 	print_loop:
+
+	cmp edx, VIDEO_MEMORY_LIMIT ; wrapp around the buffer
+
+	jl print_continue
+	mov edx, VIDEO_MEMORY
+
+	print_continue:
 	
     mov al, [ebx]
-    mov ah, WHITE_ON_BLACK
-
     cmp al, 0
+
     je print_done
 
     mov [edx], ax
@@ -27,32 +49,50 @@ print:
 
 	print_done:
 	mov [cureent_char], edx
-    popa
+
+	xor edx, edx
+	mov eax, [cureent_char]
+	sub eax, VIDEO_MEMORY
+	mov ecx, VIDEO_COLS * 2  ; width of screen (in bytes)
+
+	div ecx
+	mov [cureent_x], edx  ; x = i % width
+	mov [cureent_y], eax  ; y = i / width
+
+    popad
     ret
 
+;-------------------------------------
+;   Print new line
+;-------------------------------------
 print_nl:
-	pusha
+	pushad
 	
-	mov ebx, cureent_char
-	mov eax, [ebx]
-	sub eax, VIDEO_MEMORY
-	mov ecx, 160
+	mov DWORD [cureent_x], 0
+	mov eax, [cureent_y]
+	inc eax
+	mov [cureent_y], eax
+
+	; EAX contains [current_y]
+	; i = x + y * width
+	mov ecx, VIDEO_COLS * 2
+	mul ecx
+	add eax, VIDEO_MEMORY
+
+	mov [cureent_char], eax
 	
-	xor edx, edx  ; set to zero
-	div ecx
-	
-	mov eax, 160
-	sub eax, edx
-	add eax, [ebx]
-	mov [ebx], eax
-	
-	popa
+	popad
 	ret
 
+;-------------------------------------
+;   Clear the screen
+;-------------------------------------
 clear_screen:
-	pusha
+	pushad
+
 	mov ebx, VIDEO_MEMORY
-	xor eax, eax  ; set to zero
+	mov al, 0
+    mov ah, CHAR_ATTRIBUTE
 	
 	clear_screen_loop:
 	cmp ebx, VIDEO_MEMORY_LIMIT
@@ -62,117 +102,121 @@ clear_screen:
 	jmp clear_screen_loop
 	
 	clear_screen_done:
-	popa
+	mov DWORD [cureent_char], VIDEO_MEMORY
+	mov DWORD [cureent_x], 0
+	mov DWORD [cureent_y], 0
+
+	popad
 	ret
 
-; get data from edx, number of digits to print from esi
-print_hex:
-	pusha
+;-------------------------------
+;   Print hex value in EDX
+;-------------------------------
+print_reg_hex:
+	pushad
+
 	xor ecx, ecx  ; set to zero
 
-	print_hex_loop:
+	print_reg_hex_loop:
 	
-	cmp ecx, esi
-	je print_hex_end
+	cmp ecx, 8
+	je print_reg_hex_end
 	
 	mov eax, edx
 	and eax, 0xF
 	add al, 0x30
 	cmp al, 0x39
-	jle print_hex_continue
+	jle print_reg_hex_continue
 	
 	add al, 7
 	
-	print_hex_continue:
+	print_reg_hex_continue:
 	
-	mov ebx, print_hex_mem+7
+	mov ebx, print_hex_mem + 7
 	sub ebx, ecx
 	mov [ebx], al
 	
 	ror edx, 4
 	inc ecx
 	
-	jmp print_hex_loop
+	jmp print_reg_hex_loop
 
-	print_hex_end:
+	print_reg_hex_end:
 	
-	mov ebx, print_hex_mem+8
-	sub ebx, esi
+	mov ebx, print_hex_mem
 	call print
-	popa
+
+	popad
 	ret
 
-; get data from edx, number of digits to print from esi
-print_integer:
-	pusha
+;---------------------------------
+;   Print integer value in EDX
+;---------------------------------
+print_reg_integer:
+	pushad
+
 	mov eax, edx
 	xor ecx, ecx
 	
-	print_integer_loop:
+	print_reg_integer_loop:
 	
 	cmp eax, 0
-	je print_integer_end
+	je print_reg_integer_end
 	
 	mov ebx, 10
 	xor edx, edx ; set to zero, needed for division
 	div ebx
 	
 	add dl, 0x30  ; reminder of division
-	mov ebx, print_integer_mem+9
+	mov ebx, print_integer_mem + 9
 	sub ebx, ecx
 	mov [ebx], dl
 	inc ecx
 	
-	jmp print_integer_loop
+	jmp print_reg_integer_loop
 	
-	print_integer_end:
+	print_reg_integer_end:
 	
-	mov ebx, print_integer_mem+10
+	mov ebx, print_integer_mem + 10
 	sub ebx, ecx
 	call print
 	
-	popa
+	popad
 	ret
 	
-; get data from edx
-print_binary:
-	pusha
+;---------------------------------
+;   Print binary value in EDX
+;---------------------------------
+print_reg_binary:
+	pushad
+
 	xor ecx, ecx  ; set to zero
 
-	print_binary_loop:
+	print_reg_binary_loop:
 	
 	cmp ecx, 32
-	je print_binary_end
+	je print_reg_binary_end
 	
 	mov eax, edx
 	and eax, 1
 	add al, 0x30
 	
-	mov ebx, print_binary_mem+31
+	mov ebx, print_binary_mem + 31
 	sub ebx, ecx
 	mov [ebx], al
 	
 	ror edx, 1
 	inc ecx
 	
-	jmp print_binary_loop
+	jmp print_reg_binary_loop
 
-	print_binary_end:
+	print_reg_binary_end:
 	
-	mov ebx, print_binary_mem+32
-	shl esi, 2
-	sub ebx, esi
+	mov ebx, print_binary_mem
 	call print
 	
-	popa
+	popad
 	ret
-	
-	
-print_hex_mem: db "00000000", 0
-print_integer_mem: db "0000000000", 0
-print_binary_mem: times 32 db "0"
-db 0
-cureent_char: dd 0xb8000
 
 
 %endif ; print_32_included

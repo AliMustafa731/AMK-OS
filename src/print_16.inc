@@ -3,7 +3,9 @@
 
 [bits 16]
 
-; print text located at address BX
+;----------------------------------------
+;   print text located at address BX
+;----------------------------------------
 print_16:
 	pusha
 	mov ah, 0x0E
@@ -21,7 +23,9 @@ print_16_done:
 	popa
 	ret
 
-
+;----------------------------
+;   print new line
+;----------------------------
 print_16_nl:
     pusha
     
@@ -34,7 +38,11 @@ print_16_nl:
     popa
     ret
 
-; recieve data from dx
+;----------------------------------------
+;   print hex value stored in DX
+;----------------------------------------
+hex_out: db "0x0000", 0 ; reserve memory for our new string
+
 print_16_hex:
 	pusha
 	mov cx, 0
@@ -66,8 +74,6 @@ print_16_hex_end:
 	
 	popa
 	ret
-
-hex_out: db "0x0000", 0 ; reserve memory for our new string
 
 
 %endif ; print_16_included
