@@ -19,6 +19,43 @@ cureent_x: dd 0
 cureent_y: dd 0
 
 ;-------------------------------------
+;   Update VGA Cursor
+;-------------------------------------
+update_cursor:
+	pushad
+
+	mov ebx, [cureent_char]
+	sub ebx, VIDEO_MEMORY
+	shr ebx, 1  ; divide by 2
+
+	;---------------------
+	;   Send low byte
+	;---------------------
+	xor eax, eax
+	mov al, 0x0F   ; Cursor location low byte index
+	mov dx, 0x3D4
+	out dx, al  ; VGA index register port
+
+	mov al, bl
+	mov dx, 0x3D5
+	out dx, al  ; VGA data register port
+
+	;---------------------
+	;   Send high byte
+	;---------------------
+	xor eax, eax
+	mov al, 0x0E   ; Cursor location high byte index
+	mov dx, 0x3D4
+	out dx, al  ; VGA index register port
+
+	mov al, bh
+	mov dx, 0x3D5
+	out dx, al  ; VGA data register port
+
+	popad
+	ret
+
+;-------------------------------------
 ;   Print string pointed by EBX
 ;-------------------------------------
 print:
@@ -30,7 +67,6 @@ print:
 	print_loop:
 
 	cmp edx, VIDEO_MEMORY_LIMIT ; wrapp around the buffer
-
 	jl print_continue
 	mov edx, VIDEO_MEMORY
 
@@ -38,8 +74,16 @@ print:
 	
     mov al, [ebx]
     cmp al, 0
-
     je print_done
+
+	cmp al, 0x0A
+	jne print_continue_2
+
+	call print_nl
+	popad
+	ret
+
+	print_continue_2:
 
     mov [edx], ax
     add ebx, 1 ; next char
@@ -58,6 +102,8 @@ print:
 	div ecx
 	mov [cureent_x], edx  ; x = i % width
 	mov [cureent_y], eax  ; y = i / width
+
+	call update_cursor
 
     popad
     ret
@@ -80,6 +126,7 @@ print_nl:
 	add eax, VIDEO_MEMORY
 
 	mov [cureent_char], eax
+	call update_cursor
 	
 	popad
 	ret
