@@ -3,24 +3,25 @@ MAKEFLAGS += --no-builtin-rules
 
 qemu = D:\Files\Programs\qemu\qemu-system-i386
 dd = Tools\dd
-src = src
 asm = Tools\nasm\nasm
 
-ASM_SRC = $(wildcard $(src)/*.asm)
-C_SRC = $(wildcard $(src)/*.c)
+ASM_SRC = $(wildcard */*.asm)
+C_SRC = $(wildcard */*.c)
 OBJS = $(ASM_SRC:.asm=.o) $(C_SRC:.c=.o)
 DEPS = $(OBJS:.o=.d)
 
-run: boot.bin
+run: amkos.img
 	$(qemu) -accel hax -hda amkos.img
 
 -include $(DEPS)
 
-boot.bin: $(src)\boot.asm
-	$(asm) -f bin -i$(src)/ -MD $(<:.asm=.d) $< -o $@
+amkos.img: boot.bin
 	$(dd) if=boot.bin of=amkos.img seek=0
 
+boot.bin: bootloader\boot.asm
+	$(asm) -f bin -ibootloader/ -MD $(<:.asm=.d) $< -o $@
+
 clean:
-	del $(src)\*.d
+	del bootloader\*.d
 	del boot.bin
 

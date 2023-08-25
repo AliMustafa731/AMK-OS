@@ -153,6 +153,8 @@ clear_screen:
 	mov DWORD [cureent_x], 0
 	mov DWORD [cureent_y], 0
 
+	call update_cursor
+
 	popad
 	ret
 
