@@ -23,7 +23,7 @@ main_16:
 	mov cl, 0x2   ; starting sector
 	mov ch, 0x0   ; cylinder number
 	mov dh, 0x0   ; head number
-	mov dl, 0x80
+	;mov dl, 0x80
 	call disk_load_16
 
 	switch_to_pm:

@@ -42,7 +42,7 @@ $(BUILD_DIR)/%.o : %.asm
 	$(asm) -f elf -MD $(@:.o=.d) $< -o $@
 
 $(BUILD_DIR)/%.o : %.c
-	$(gcc) -ffreestanding -c $< -o $@
+	$(gcc) -I. -MD -ffreestanding -c $< -o $@
 
 clean:
 	rmdir /s /q $(BUILD_DIR)

@@ -1,35 +1,89 @@
 
+#include "kernel/defs.h"
+#include "kernel/ports.h"
+
 #define VIDEO_MEMORY 0xB8000
 #define VIDEO_MEMORY_LIMIT 0xB8FA0
+#define WIDTH 80
+#define HEIGHT 25
 
-void print(const char* text);
+int current_x = 0;
+int current_y = 0;
+int current_mem = 0;
+
+void update_cursor(int x, int y);
+void print(char* text);
+void print_nl();
 void clear_screen();
+
 
 void main()
 {
 	clear_screen();
-	print("hello world");
+	print("hello world\n");
+	print("AMK-OS started");
 }
 
 void clear_screen()
 {
-	char* c = (char*)VIDEO_MEMORY;
-	while((int)c < VIDEO_MEMORY_LIMIT)
+	char* mem = (char*)VIDEO_MEMORY;
+
+	while((int)mem < VIDEO_MEMORY_LIMIT)
 	{
-		*c = 0;
-		c += 2;
+		*mem = 0x00;  mem++;
+		*mem = 0x0E;  mem++;
 	}
+
+	current_mem = 0;
+	current_x = 0;
+	current_y = 0;
+
+	update_cursor(current_x, current_y);
 }
 
-void print(const char* text)
+void print(char* text)
 {
 	char* c = text;
-	char* mem = VIDEO_MEMORY;
+	char* mem = (char*)VIDEO_MEMORY;
 
 	while(*c != 0)
 	{
-		*mem = *c;    mem++;
-		*mem = 0x0E;  mem++;
+		if (*c == 0x0A)
+		{
+			print_nl();
+		}
+		else
+		{
+			mem[current_mem] = *c;    current_mem++;
+			mem[current_mem] = 0x0E;  current_mem++;
+		}
 		c++;
 	}
+
+	current_x = (current_mem / 2) % WIDTH;
+	current_y = (current_mem / 2) / WIDTH;
+
+	update_cursor(current_x, current_y);
 }
+
+void print_nl()
+{
+	current_x = 0;
+	current_y += 1;
+	current_mem = current_y * WIDTH * 2;
+
+	update_cursor(current_x, current_y);
+}
+
+void update_cursor(int x, int y)
+{
+	uint16_t pos = x + y * WIDTH;
+
+	// 0x3D4 VGA index register port
+	// 0x3D5 VGA data register port
+	port_byte_out(0x3D4, 0xE); // 0x0E cursor position high byte
+	port_byte_out(0x3D5, HIGH_BYTE(pos));
+	port_byte_out(0x3D4, 0xF); // 0x0F cursor position low byte
+	port_byte_out(0x3D5, LOW_BYTE(pos));
+}
+
