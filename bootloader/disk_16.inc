@@ -4,28 +4,33 @@
 [bits 16]
 
 ;----------------------------------------------------
-;   load 'DH' sectors from drive 'DL' into ES:BX
+;   load 'AL' sectors from drive 'DL' into ES:BX
+;   CL : starting sector (start from index 1)
+;   CH : cylinder number (start from index 0)
+;   DH : head number (start from index 0)
 ;----------------------------------------------------
 disk_load_16:
 	pusha
 	
 	disk_16_loop_retry:
-	push dx
+	push bx
+	push ax
 	
 	disk_16_loop:
 	mov ah, 0x02
-	mov al, dh    ; number of sectors to read (0x01 .. 0x80)
-	mov cl, 0x02  ; starting sector
-	mov ch, 0x00  ; cylinder number
-	push dx
-	mov dh, 0x00  ; head number
+	;mov al, dh    ; number of sectors to read (0x01 .. 0x80)
+	;mov cl, 0x02  ; starting sector
+	;mov ch, 0x00  ; cylinder number
+	;mov dh, 0x00  ; head number
 	int 0x13
-	pop dx
 	jc disk_16_loop
-	
-	pop dx
-	cmp al, dh
+
+	mov bl, al
+	pop ax
+	cmp al, bl
+	pop bx
 	jne sectors_16_error
+
 	popa
 	ret
 

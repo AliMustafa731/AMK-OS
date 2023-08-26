@@ -4,41 +4,30 @@
 [org 0x7C00]
 [bits 16]
 
+%define KERNEL_OFFSET 0x1000
+
 main_16:
+	mov [drive_number], dl
+
 	mov ax, 0x9000
 	mov ss, ax
 	mov bp, 0xFFFF
 	mov sp, bp
 	
-	; loading 20 sectors (10KB) from disk
-	mov bx, 0x7E00
-	mov dh, 20
+	; loading the kernel
+	mov ax, 0
+	mov es, ax
+	mov bx, KERNEL_OFFSET
+
+	mov al, 20    ; sectors to read
+	mov cl, 0x2   ; starting sector
+	mov ch, 0x0   ; cylinder number
+	mov dh, 0x0   ; head number
+	mov dl, 0x80
 	call disk_load_16
-	
-	mov bx, msg_16bit_mode
-	call print_16
-	
-	jmp switch_to_pm
 
-%include "print_16.inc"
-%include "disk_16.inc"
-
-
-times 510 - ($-$$) db 0
-dw 0xAA55
-
-;-----------------------------------------------
-;    End of sector 1 & start of protected mode
-;-----------------------------------------------
-
-%include "gdt_32.inc"
-%include "print_32.inc"
-%include "A20.inc"
-
-[bits 16]
-
-switch_to_pm:
-    cli		; disable interrupts
+	switch_to_pm:
+    cli
     lgdt	[gdt_descriptor] ; load the GDT descriptor
     mov		eax, cr0
     or		eax, 0x1 ; set bit 1 in cr0
@@ -55,40 +44,23 @@ start_pm:
     mov fs, ax
     mov gs, ax
 
-    mov ebp, 0x90000
+    mov ebp, 0xFFFFFF
     mov esp, ebp
 
 	call Enable_A20
-
-	call clear_screen
 	
-	mov ebx, msg_32bit_mode
-	call print
-	call print_nl
-	
-	mov ebx, msg_hello
-	call print
-	call print_nl
-	call print
-	call print_nl
-	
-	mov edx, 0x7FFF
-	call print_reg_hex
-	call print_nl
-	call print_reg_integer
-	call print_nl
-	call print_reg_binary
-	call print_nl
-
-	mov ecx, 0
+	jmp KERNEL_OFFSET
 	
 	hlt
 	jmp $
 
-msg_hello: db "Hello World !!", 0
-msg_16bit_mode: db "Started in 16-bit real mode", 0
-msg_32bit_mode: db "Loaded 32-bit protected mode", 0
 
+drive_number: db 0
 
-times 2048 db 0x00
+%include "bootloader/print_16.inc"
+%include "bootloader/disk_16.inc"
+%include "bootloader/gdt_32.inc"
+%include "bootloader/A20.inc"
 
+times 510 - ($-$$) db 0
+dw 0xAA55
