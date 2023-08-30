@@ -9,15 +9,15 @@ qemu = D:\Files\Programs\qemu\qemu-system-i386
 dd = tools\dd
 
 BUILD_DIR = build
-FOLDERS = bootloader kernel
+FOLDERS = bootloader kernel drivers libc
 
-KERNEL_C := $(wildcard kernel/*.c kernel/*/*.c)
-KERNEL_ASM := $(wildcard kernel/*.asm kernel/*/*.asm)
-KERNEL_OBJ := $(KERNEL_C:.c=.o) $(KERNEL_ASM:.asm=.o)
-KERNEL_OBJ := $(patsubst %,$(BUILD_DIR)/%,$(KERNEL_OBJ))
+KERNEL_C    := $(wildcard kernel/*.c kernel/*/*.c drivers/*.c drivers/*/*.c libc/*.c libc/*/*.c)
+KERNEL_ASM  := $(wildcard kernel/*.asm kernel/*/*.asm drivers/*.asm drivers/*/*.asm libc/*.asm libc/*/*.asm)
+KERNEL_OBJ  := $(KERNEL_C:.c=.o) $(KERNEL_ASM:.asm=.o)
+KERNEL_OBJ  := $(patsubst %,$(BUILD_DIR)/%,$(KERNEL_OBJ))
 KERNEL_DEPS := $(KERNEL_OBJ:.o=.d)
 
-BOOT_ASM := $(wildcard bootloader/*.asm bootloader/*/*.asm)
+BOOT_ASM  := $(wildcard bootloader/*.asm bootloader/*/*.asm)
 BOOT_DEPS := $(patsubst %,$(BUILD_DIR)/%,$(BOOT_ASM))
 BOOT_DEPS := $(BOOT_DEPS:.asm=.d)
 
@@ -32,7 +32,7 @@ amkos.img: $(BUILD_DIR)/bootloader/boot.bin $(BUILD_DIR)/kernel.bin
 	$(dd) if=$(BUILD_DIR)/bootloader/boot.bin of=$@ seek=0
 	$(dd) if=$(BUILD_DIR)/kernel.bin of=$@ seek=1
 
-$(BUILD_DIR)/kernel.bin : $(BUILD_DIR)/bootloader/kernel_entry.o $(KERNEL_OBJ)
+$(BUILD_DIR)/kernel.bin : $(BUILD_DIR)/kernel/kernel_entry.o $(KERNEL_OBJ)
 	$(ld) -o $@ -Ttext 0x1000 $^ --oformat binary
 
 $(BUILD_DIR)/%.bin : %.asm

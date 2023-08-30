@@ -1,7 +1,7 @@
 #ifndef ports_included
 #define ports_included
 
-#include "kernel/defs.h"
+#include <libc/stdef.h>
 
 uint8_t port_byte_in(uint16_t port);
 
@@ -11,4 +11,4 @@ uint16_t port_word_in(uint16_t port);
 
 void port_word_out(uint16_t port, uint16_t data);
 
-#endif
+#endif  // ports_included
