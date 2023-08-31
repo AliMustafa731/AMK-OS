@@ -1,5 +1,6 @@
 *.*
 tools/**
+!tools/dd.exe
 !*.asm
 !*.inc
 !*.c
