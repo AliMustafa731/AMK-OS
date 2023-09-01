@@ -9,11 +9,11 @@ static IDT_Descriptor_t IDT_Table[IDT_MAX_INTERRUPTS];
 
 static IDT_Register_t IDT_Register;
 
-static void IDT_Default_Handler()
+extern void ASM_IDT_Handler();
+
+void IDT_Default_Handler()
 {
-	print("\nAn interrupt was called !\n");
-	
-	while ( 1 ) {}
+	print("\nAn Interrupt was called\n");
 }
 
 IDT_Descriptor_t* IDT_get_ir(uint16_t index)
@@ -47,7 +47,7 @@ void IDT_init(uint16_t segment)
 	// register default handlers
 	for (int i = 0 ; i < IDT_MAX_INTERRUPTS ; i++)
 	{
-		IDT_install_ir(i, (uint32_t)&IDT_Default_Handler, segment, IDT_DESC_32_BIT | IDT_DESC_SEG_PRESENT);
+		IDT_install_ir(i, (uint32_t)ASM_IDT_Handler, segment, IDT_DESC_32_BIT | IDT_DESC_SEG_PRESENT);
 	}
 	
 	__asm__ __volatile__("lidtl (%0)" : : "r" (&IDT_Register));
