@@ -1,15 +1,16 @@
 
-#include <kernel/idt.h>
+#include <kernel/hardware.h>
 #include <drivers/screen.h>
 #include <libc/stdef.h>
 
 
 void main()
 {
-	IDT_init(0x8);
+	Hardware_init();
 	clear_screen();
 	print("hello world\n");
 	print("AMK-OS started");
 	__asm__ __volatile__("int $100");
+	__asm__ __volatile__("sti");
 }
 

@@ -2,8 +2,6 @@
 #include <kernel/gdt.h>
 #include <libc/memory.h>
 
-#define GDT_ENTRIES 5
-
 static GDT_Descriptor_t GDT_Table[GDT_ENTRIES];
 
 static GDT_Register_t GDT_Register;
@@ -19,7 +17,7 @@ void GDT_set_descriptor(uint16_t index, uint32_t base_address, uint32_t limit, u
 {
 	if (index >= GDT_ENTRIES) { return; }
 	
-	memset(&GDT_Table[index], 0, sizeof(GDT_Descriptor_t));
+	memset((uint8_t*)&GDT_Table[index], 0, sizeof(GDT_Descriptor_t));
 	
 	// set limit and base addresses
 	GDT_Table[index].BaseLow	= (uint16_t)(base_address & 0xFFFF);
@@ -57,4 +55,6 @@ void GDT_init()
 		GDT_DESC_READWRITE | GDT_DESC_CODEDATA | GDT_DESC_MEMORY,
 		GDT_GRAND_4K | GDT_GRAND_32BIT | GDT_GRAND_LIMITHI_MASK
 	);
+	
+	__asm__ __volatile__("lgdt (%0)" : : "r" (&GDT_Register));
 }

@@ -1,6 +1,6 @@
 
 #include <drivers/screen.h>
-#include <drivers/ports.h>
+#include <kernel/hardware.h>
 
 #define VIDEO_MEMORY 0xB8000
 #define VIDEO_MEMORY_LIMIT 0xB8FA0

@@ -3,12 +3,12 @@
 
 #include <libc/stdef.h>
 
-void update_cursor(int x, int y);
+extern void update_cursor(int x, int y);
 
-void print(char* text);
+extern void print(char* text);
 
-void print_nl();
+extern void print_nl();
 
-void clear_screen();
+extern void clear_screen();
 
 #endif  // screen_included

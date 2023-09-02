@@ -3,9 +3,9 @@
 
 #include <libc/stdef.h>
 
-void memcpy(void* dest, void* src, size_t size);
+extern void memcpy(uint8_t* dest, uint8_t* src, size_t size);
 
-void memset(void* ptr, uint8_t val, size_t size);
+extern void memset(uint8_t* ptr, uint8_t val, size_t size);
 
 #endif  // memory_included
 
