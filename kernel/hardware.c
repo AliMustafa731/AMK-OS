@@ -2,41 +2,14 @@
 #include <kernel/hardware.h>
 #include <kernel/idt.h>
 #include <kernel/gdt.h>
+#include <kernel/pic.h>
 
 void Hardware_init()
 {
-	GDT_init();
+	GDT_init;
 	IDT_init(0x8);
-	PIC_init();
+	PIC_init(0x20, 0x28);
 	Timer_init();
-}
-
-void PIC_init()  // Programable Interrupt Controller
-{
-	// remap the PIC to use interrupts numbers (32 to 48) for hardware interrupts
-	// 0x20 : PIC 1 control register port
-	// 0x21 : PIC 1 data register port
-	// 0xA0 : PIC 2 control register port
-	// 0xA1 : PIC 2 data register port
-	
-	// 0x11 = 00010001 binary. Enables initialization
-	port_byte_out(0x20, 0x11);
-	port_byte_out(0xA0, 0x11);
-	
-	port_byte_out(0x21, 0x20);  // map (IRQ 0 to IRQ 7)  to base 0x20 (32 decimal)
-	port_byte_out(0xA1, 0x28);  // map (IRQ 8 to IRQ 15) to base 0x28 (40 decimal)
-	
-	// Set the IR line to connect both PICs
-	port_byte_out(0x21, 0x4);  // 0x04 => 0100, second bit (IR line 2)
-	port_byte_out(0xA1, 0x2);  // 0x02 => 0010, IR line 2
-	
-	// Set x86 mode, bit 0 enables 80x86 mode
-	port_byte_out(0x21, 0x1);
-	port_byte_out(0xA1, 0x1);
-	
-	// finished, null the data register
-	port_byte_out(0x21, 0);
-	port_byte_out(0xA1, 0);
 }
 
 void Timer_init()  // Programable Interval Timer

@@ -5,8 +5,6 @@
 
 extern void Hardware_init();
 
-extern void PIC_init();    // Programable Interrupt Controller
-
 extern void Timer_init();  // Programable Interval Timer
 
 // Accessing the mapped I/O ports
