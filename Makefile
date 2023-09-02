@@ -27,7 +27,7 @@ run: $(BUILD_DIR)/amkos.img
 -include $(KERNEL_DEPS)
 
 $(BUILD_DIR)/amkos.img: $(BUILD_DIR)/boot.bin $(BUILD_DIR)/kernel.bin
-	-fsutil file createnew $@ 8388608
+	$(asm) amkos.asm -f bin -o $@
 	$(dd) if=$(BUILD_DIR)/boot.bin of=$@ seek=0
 	$(dd) if=$(BUILD_DIR)/kernel.bin of=$@ seek=1
 
