@@ -4,13 +4,15 @@
 #include <kernel/gdt.h>
 #include <kernel/pic.h>
 #include <kernel/pit.h>
+#include <kernel/exception.h>
 
 void Hardware_init()
 {
 	GDT_init();
 	IDT_init(0x8);
-	PIC_init(0x20, 0x28);
+	PIC_init(32, 40);
     PIT_init();
+    Exceptions_init();
 }
 
 inline void Hardware_interrupt_done(uint8_t int_num)

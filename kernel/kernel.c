@@ -13,7 +13,7 @@ void main()
 	clear_screen();
 	print("hello world\n");
 	print("AMK-OS started");
-	__asm__ __volatile__("int $100");
-	__asm__ __volatile__("sti");
+	__asm__("int $100");
+	__asm__("sti");
 }
 

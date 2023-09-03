@@ -1,5 +1,6 @@
 
 #include <kernel/pit.h>
+#include <kernel/pic.h>
 #include <kernel/idt.h>
 #include <drivers/screen.h>
 
@@ -9,18 +10,26 @@
 
 static volatile uint32_t PIT_ticks = 0;
 
-extern void ASM_PIT_interrupt_handler();
-
-void PIT_interrupt_handler()
+//---------------------------------------------
+//  timer interrupt handler
+//  these parameters are pushed
+//  to the stack by the processor
+//---------------------------------------------
+void PIT_interrupt_handler(uint32_t cs, uint32_t eip, uint32_t eflags)
 {
+	__asm__("pusha");
+
     PIT_ticks++;
-    
-    Hardware_interrupt_done(0);
+    Hardware_interrupt_done(PIC_IRQ_TIMER);
+
+	__asm__("popa");
+    __asm__("leave");
+    __asm__("iret");
 }
 
 void PIT_init()
 {
-    IDT_install_int(32, (uint32_t)ASM_PIT_interrupt_handler, 0x8, IDT_DESC_32_BIT | IDT_DESC_SEG_PRESENT);
+    IDT_install_int(32, (uint32_t)PIT_interrupt_handler, 0x8, IDT_DESC_32_BIT | IDT_DESC_SEG_PRESENT);
 }
 
 void PIT_start_counter(uint16_t freq, uint8_t counter, uint8_t mode)
