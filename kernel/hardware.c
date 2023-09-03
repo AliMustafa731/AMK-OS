@@ -8,9 +8,9 @@
 
 void Hardware_init()
 {
-	GDT_init();
-	IDT_init(0x8);
-	PIC_init(32, 40);
+    GDT_init();
+    IDT_init(0x8);
+    PIC_init(32, 40);
     PIT_init();
     Exceptions_init();
 }
@@ -20,10 +20,10 @@ inline void Hardware_interrupt_done(uint8_t int_num)
     if (int_num >= 16) { return; }
 
     //! test if we need to send end-of-interrupt to second PIC
-	if (int_num >= 8) { PIC_send_command(PIC_OCW2_MASK_EOI, 1); }
+    if (int_num >= 8) { PIC_send_command(PIC_OCW2_MASK_EOI, 1); }
 
-	//! always send end-of-interrupt to primary PIC
-	PIC_send_command(PIC_OCW2_MASK_EOI, 0);
+    //! always send end-of-interrupt to primary PIC
+    PIC_send_command(PIC_OCW2_MASK_EOI, 0);
 }
 
 //------------------------------------

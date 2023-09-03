@@ -18,19 +18,19 @@
 
 typedef struct _IDT_Descriptor_t
 {
-	uint16_t BaseLow;
-	uint16_t Segment;
-	uint8_t Reserved; // must be zero
-	uint8_t Flags;
-	uint16_t BaseHigh;
-	
+    uint16_t BaseLow;
+    uint16_t Segment;
+    uint8_t Reserved; // must be zero
+    uint8_t Flags;
+    uint16_t BaseHigh;
+    
 } __attribute__((packed)) IDT_Descriptor_t;
 
 typedef struct _IDT_Register_t
 {
-	uint16_t size;
-	uint32_t address;
-	
+    uint16_t size;
+    uint32_t address;
+    
 } __attribute__((packed)) IDT_Register_t;
 
 
