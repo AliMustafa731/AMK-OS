@@ -5,7 +5,7 @@
 
 extern void Hardware_init();
 
-extern void Timer_init();  // Programable Interval Timer
+extern void Hardware_interrupt_done(uint8_t int_num);
 
 // Accessing the mapped I/O ports
 extern uint8_t  port_byte_in(uint16_t port);
