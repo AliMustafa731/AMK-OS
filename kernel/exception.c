@@ -1,7 +1,7 @@
 
 #include <kernel/exception.h>
 #include <kernel/hardware.h>
-#include <kernel/idt.h>
+#include <kernel/IDT.h>
 #include <drivers/screen.h>
 
 //------------------------------------

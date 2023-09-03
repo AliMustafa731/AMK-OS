@@ -1,14 +1,15 @@
 
 #include <kernel/hardware.h>
-#include <kernel/pit.h>
+#include <kernel/PIT.h>
 #include <drivers/screen.h>
-#include <libc/stdef.h>
+#include <libc/stdint.h>
+#include <libc/string.h>
 
 
 void main()
 {
     Hardware_init();
-    PIT_start_counter(100, PIT_OCW_COUNTER_0, PIT_OCW_MODE_SQUAREWAVEGEN);
+    PIT_start_counter(0xFFFF, PIT_OCW_COUNTER_0, PIT_OCW_MODE_SQUAREWAVEGEN);
 
     clear_screen();
     print("hello world\n");

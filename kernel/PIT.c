@@ -1,7 +1,7 @@
 
-#include <kernel/pit.h>
-#include <kernel/pic.h>
-#include <kernel/idt.h>
+#include <kernel/PIT.h>
+#include <kernel/PIC.h>
+#include <kernel/IDT.h>
 #include <drivers/screen.h>
 
 //-----------------------------------------------
@@ -32,11 +32,9 @@ void PIT_init()
     IDT_install_int(32, (uint32_t)PIT_interrupt_handler, 0x8, IDT_DESC_32_BIT | IDT_DESC_SEG_PRESENT);
 }
 
-void PIT_start_counter(uint16_t freq, uint8_t counter, uint8_t mode)
+void PIT_start_counter(uint16_t start_value, uint8_t counter, uint8_t mode)
 {
-    if (freq == 0) { return; }
-
-    uint16_t divisor = (uint16_t)(1193181 / (uint16_t)freq);
+    if (start_value == 0) { return; }
 
     //! send operational command
     uint8_t ocw = 0;
@@ -46,8 +44,8 @@ void PIT_start_counter(uint16_t freq, uint8_t counter, uint8_t mode)
     port_byte_out(PIT_REG_COMMAND, ocw);
 
     //! set frequency rate
-    port_byte_out(PIT_REG_COUNTER0, divisor & 0xFF);
-    port_byte_out(PIT_REG_COUNTER0, (divisor >> 8) & 0xFF);
+    port_byte_out(PIT_REG_COUNTER0, start_value & 0xFF);
+    port_byte_out(PIT_REG_COUNTER0, (start_value >> 8) & 0xFF);
 
     //! reset tick count
     PIT_ticks = 0;

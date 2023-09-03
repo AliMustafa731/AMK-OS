@@ -1,6 +1,6 @@
 
-#include <kernel/gdt.h>
-#include <libc/memory.h>
+#include <kernel/GDT.h>
+#include <libc/string.h>
 
 static GDT_Descriptor_t GDT_Table[GDT_ENTRIES];
 

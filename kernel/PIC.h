@@ -1,7 +1,7 @@
 #ifndef pic_included
 #define pic_included
 
-#include <libc/stdef.h>
+#include <libc/stdint.h>
 
 //------------------------------------------
 //  Programable Interrupt Controller

@@ -1,5 +1,5 @@
 
-#include <kernel/pic.h>
+#include <kernel/PIC.h>
 #include <kernel/hardware.h>
 
 //-----------------------------------------------

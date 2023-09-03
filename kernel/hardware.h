@@ -1,7 +1,7 @@
 #ifndef hardware_included
 #define hardware_included
 
-#include <libc/stdef.h>
+#include <libc/stdint.h>
 
 extern void Hardware_init();
 

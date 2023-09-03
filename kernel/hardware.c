@@ -1,9 +1,9 @@
 
 #include <kernel/hardware.h>
-#include <kernel/idt.h>
-#include <kernel/gdt.h>
-#include <kernel/pic.h>
-#include <kernel/pit.h>
+#include <kernel/IDT.h>
+#include <kernel/GDT.h>
+#include <kernel/PIC.h>
+#include <kernel/PIT.h>
 #include <kernel/exception.h>
 
 void Hardware_init()

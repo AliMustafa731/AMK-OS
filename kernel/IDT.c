@@ -1,6 +1,6 @@
 
-#include <kernel/idt.h>
-#include <libc/memory.h>
+#include <kernel/IDT.h>
+#include <libc/string.h>
 #include <drivers/screen.h>
 
 static IDT_Descriptor_t IDT_Table[IDT_MAX_INTERRUPTS];

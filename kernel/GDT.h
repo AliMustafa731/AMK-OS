@@ -1,7 +1,7 @@
 #ifndef gdt_included
 #define gdt_included
 
-#include <libc/stdef.h>
+#include <libc/stdint.h>
 
 //-----------------------------
 //  Global Descriptor Table

@@ -1,7 +1,7 @@
 #ifndef idt_included
 #define idt_included
 
-#include <libc/stdef.h>
+#include <libc/stdint.h>
 
 //-------------------------------
 //  Interrupt Descriptor Table

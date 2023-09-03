@@ -1,7 +1,7 @@
 #ifndef screen_included
 #define screen_included
 
-#include <libc/stdef.h>
+#include <libc/stdint.h>
 
 extern void update_cursor(int x, int y);
 

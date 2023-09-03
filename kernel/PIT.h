@@ -47,6 +47,6 @@
 
 extern void PIT_init();
 
-extern void PIT_start_counter(uint16_t freq, uint8_t counter, uint8_t mode);
+extern void PIT_start_counter(uint16_t start_value, uint8_t counter, uint8_t mode);
 
 #endif  // pit_included
