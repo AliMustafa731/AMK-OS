@@ -5,10 +5,9 @@ size_t strlen(uint8_t *str)
 {
     size_t len = 0;
 
-    while(*str != 0)
+    while(str[len] != 0)
     {
         len++;
-        str++;
     }
 
     return len;
@@ -16,7 +15,7 @@ size_t strlen(uint8_t *str)
 
 void strcpy(uint8_t *str1, uint8_t *str2)
 {
-    while(*str1 != 0)
+    while(*str1 != 0 && *str2 != 0)
     {
         *str1= *str2;
         str1++;
