@@ -6,7 +6,7 @@
 #include <libc/string.h>
 
 
-void main()
+void kernel_main()
 {
     Hardware_init();
     PIT_start_counter(0xFFFF, PIT_OCW_COUNTER_0, PIT_OCW_MODE_SQUAREWAVEGEN);

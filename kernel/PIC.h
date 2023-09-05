@@ -7,11 +7,9 @@
 //  Programable Interrupt Controller
 //------------------------------------------
 
-//-----------------------------------------------
-//    Devices connected to the PICs. May be useful
-//    when enabling and disabling irq's
-//-----------------------------------------------
-
+//----------------------------------------------
+//   IRQ's of devices for the x86 Arch
+//----------------------------------------------
 //! The following devices use PIC 1 to generate interrupts
 #define    PIC_IRQ_TIMER           0
 #define    PIC_IRQ_KEYBOARD        1
@@ -20,17 +18,32 @@
 #define    PIC_IRQ_PARALLEL2       5
 #define    PIC_IRQ_DISKETTE        6
 #define    PIC_IRQ_PARALLEL1       7
-
 //! The following devices use PIC 2 to generate interrupts
-#define    PIC_IRQ_CMOSTIMER        0
-#define    PIC_IRQ_CGARETRACE       1
-#define    PIC_IRQ_AUXILIARY        4
-#define    PIC_IRQ_FPU              5
-#define    PIC_IRQ_HDC              6
+#define    PIC_IRQ_CMOSTIMER       8
+#define    PIC_IRQ_CGARETRACE      9
+#define    PIC_IRQ_AUXILIARY       12
+#define    PIC_IRQ_FPU             13
+#define    PIC_IRQ_HDC             14
 
-//-----------------------------------------------
+//--------------------------------------------------
+//   Interrupt numbers chosen for hardware dvices
+//--------------------------------------------------
+#define    PIC_INT_TIMER           32
+#define    PIC_INT_KEYBOARD        33
+#define    PIC_INT_SERIAL2         34
+#define    PIC_INT_SERIAL1         35
+#define    PIC_INT_PARALLEL2       36
+#define    PIC_INT_DISKETTE        37
+#define    PIC_INT_PARALLEL1       38
+#define    PIC_INT_CMOSTIMER       39
+#define    PIC_INT_CGARETRACE      40
+#define    PIC_INT_AUXILIARY       41
+#define    PIC_INT_FPU             42
+#define    PIC_INT_HDC             43
+
+//-----------------------------------------------------
 //    Command words are used to control the devices
-//-----------------------------------------------
+//-----------------------------------------------------
 
 //! Command Word 2 bit masks. Use when sending commands
 #define    PIC_OCW2_MASK_L1        1        //00000001

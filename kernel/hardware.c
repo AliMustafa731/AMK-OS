@@ -15,12 +15,12 @@ void Hardware_init()
     Exceptions_init();
 }
 
-inline void Hardware_interrupt_done(uint8_t int_num)
+inline void Hardware_interrupt_done(uint8_t irq_num)
 {
-    if (int_num >= 16) { return; }
+    if (irq_num > 15) { return; }
 
     //! test if we need to send end-of-interrupt to second PIC
-    if (int_num >= 8) { PIC_send_command(PIC_OCW2_MASK_EOI, 1); }
+    if (irq_num > 7) { PIC_send_command(PIC_OCW2_MASK_EOI, 1); }
 
     //! always send end-of-interrupt to primary PIC
     PIC_send_command(PIC_OCW2_MASK_EOI, 0);

@@ -5,10 +5,10 @@
 //-----------------------------------------------
 //  Programable Interrupt Controller
 //-----------------------------------------------
+
 //-----------------------------------------------
 //    Controller Registers
 //-----------------------------------------------
-
 //! PIC 1 register port addresses
 #define PIC1_REG_COMMAND       0x20
 #define PIC1_REG_STATUS        0x20
@@ -24,7 +24,6 @@
 //-----------------------------------------------
 //    Initialization Command Bit Masks
 //-----------------------------------------------
-
 //! Initialization Control Word 1 bit masks
 #define PIC_ICW1_MASK_IC4         0x1         //00000001
 #define PIC_ICW1_MASK_SNGL        0x2         //00000010
@@ -44,7 +43,6 @@
 //-----------------------------------------------
 //    Initialization Command 1 control bits
 //-----------------------------------------------
-
 #define PIC_ICW1_IC4_EXPECT                1            //1
 #define PIC_ICW1_IC4_NO                    0            //0
 #define PIC_ICW1_SNGL_YES                  2            //10
@@ -59,7 +57,6 @@
 //-----------------------------------------------
 //    Initialization Command 4 control bits
 //-----------------------------------------------
-
 #define PIC_ICW4_UPM_86MODE            1            //1
 #define PIC_ICW4_UPM_MCSMODE           0            //0
 #define PIC_ICW4_AEOI_AUTOEOI          2            //10
