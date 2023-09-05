@@ -2,7 +2,7 @@
 #include <kernel/PIT.h>
 #include <kernel/PIC.h>
 #include <kernel/IDT.h>
-#include <drivers/screen.h>
+#include <kernel/VGA.h>
 
 //-----------------------------------------------
 //    Programmable Interval Timer

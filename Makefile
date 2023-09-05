@@ -9,10 +9,10 @@ qemu = D:\Files\Programs\qemu\qemu-system-i386
 dd = tools\dd
 
 BUILD_DIR = build
-FOLDERS = kernel drivers libc
+FOLDERS = kernel libc
 
-KERNEL_C    := $(wildcard kernel/*.c kernel/*/*.c drivers/*.c drivers/*/*.c libc/*.c libc/*/*.c)
-KERNEL_ASM  := $(wildcard kernel/*.asm kernel/*/*.asm drivers/*.asm drivers/*/*.asm libc/*.asm libc/*/*.asm)
+KERNEL_C    := $(wildcard kernel/*.c kernel/*/*.c libc/*.c libc/*/*.c)
+KERNEL_ASM  := $(wildcard kernel/*.asm kernel/*/*.asm libc/*.asm libc/*/*.asm)
 KERNEL_OBJ  := $(KERNEL_C:.c=.o) $(KERNEL_ASM:.asm=.o)
 KERNEL_OBJ  := $(patsubst %,$(BUILD_DIR)/%,$(KERNEL_OBJ))
 KERNEL_DEPS := $(KERNEL_OBJ:.o=.d)

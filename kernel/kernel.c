@@ -1,7 +1,7 @@
 
 #include <kernel/hardware.h>
 #include <kernel/PIT.h>
-#include <drivers/screen.h>
+#include <kernel/VGA.h>
 #include <libc/stdint.h>
 #include <libc/string.h>
 

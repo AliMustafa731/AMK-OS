@@ -1,5 +1,5 @@
-#ifndef screen_included
-#define screen_included
+#ifndef vga_included
+#define vga_included
 
 #include <libc/stdint.h>
 
@@ -11,4 +11,4 @@ extern void print_nl();
 
 extern void clear_screen();
 
-#endif  // screen_included
+#endif  // vga_included

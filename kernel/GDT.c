@@ -17,7 +17,7 @@ void GDT_set_descriptor(uint16_t index, uint32_t base_address, uint32_t limit, u
 {
     if (index >= GDT_ENTRIES) { return; }
     
-    memset((uint8_t*)&GDT_Table[index], 0, sizeof(GDT_Descriptor_t));
+    memset(&GDT_Table[index], 0, sizeof(GDT_Descriptor_t));
     
     // set limit and base addresses
     GDT_Table[index].BaseLow    = (uint16_t)(base_address & 0xFFFF);

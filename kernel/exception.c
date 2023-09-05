@@ -2,7 +2,7 @@
 #include <kernel/exception.h>
 #include <kernel/hardware.h>
 #include <kernel/IDT.h>
-#include <drivers/screen.h>
+#include <kernel/VGA.h>
 
 //------------------------------------
 //  exception handlers

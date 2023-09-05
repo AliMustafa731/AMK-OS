@@ -1,7 +1,7 @@
 
 #include <kernel/IDT.h>
+#include <kernel/VGA.h>
 #include <libc/string.h>
-#include <drivers/screen.h>
 
 static IDT_Descriptor_t IDT_Table[IDT_MAX_INTERRUPTS];
 
@@ -34,7 +34,7 @@ void IDT_install_int(uint16_t index, uint32_t handler_address, uint16_t segment,
 {
     if (index >= IDT_MAX_INTERRUPTS) { return; }
     
-    memset((uint8_t*)&IDT_Table[index], 0, sizeof(IDT_Descriptor_t));
+    memset(&IDT_Table[index], 0, sizeof(IDT_Descriptor_t));
     
     IDT_Table[index].BaseLow   =  (uint16_t)(handler_address & 0xFFFF);
     IDT_Table[index].BaseHigh  =  (uint16_t)((handler_address >> 16) & 0xFFFF);

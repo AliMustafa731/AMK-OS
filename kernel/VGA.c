@@ -1,5 +1,5 @@
 
-#include <drivers/screen.h>
+#include <kernel/VGA.h>
 #include <kernel/hardware.h>
 
 #define VIDEO_MEMORY 0xB8000
