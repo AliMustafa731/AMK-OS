@@ -4,7 +4,7 @@
 [org 0x7C00]
 [bits 16]
 
-%define KERNEL_OFFSET 0x1000
+%define KERNEL_OFFSET 0xF0000
 
 main_16:
     mov [drive_number], dl
@@ -13,17 +13,25 @@ main_16:
     mov ss, ax
     mov bp, 0xFFFF
     mov sp, bp
-    
-    ; loading the kernel
-    mov ax, 0
-    mov es, ax
-    mov bx, KERNEL_OFFSET
 
-    mov al, 20    ; sectors to read
+    ;----------------------------------
+    ;   Enable Line A20
+    ;----------------------------------
+    call Enable_A20
+
+    ;---------------------------------
+    ;   loading the kernel
+    ;   kernel offset at 0xF0000
+    ;---------------------------------
+    mov ax, 0xF000
+    mov es, ax
+    mov bx, 0
+
+    mov al, 32    ; sectors to read
     mov cl, 0x2   ; starting sector
     mov ch, 0x0   ; cylinder number
     mov dh, 0x0   ; head number
-    ;mov dl, 0x80
+    mov dl, [drive_number]
     call disk_load_16
 
     switch_to_pm:
@@ -44,10 +52,8 @@ start_pm:
     mov fs, ax
     mov gs, ax
 
-    mov ebp, 0xFFFFFF
+    mov ebp, 0x1000000
     mov esp, ebp
-
-    call Enable_A20
     
     jmp KERNEL_OFFSET
     

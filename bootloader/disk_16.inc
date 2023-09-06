@@ -4,47 +4,51 @@
 [bits 16]
 
 ;----------------------------------------------------
-;   load 'AL' sectors from drive 'DL' into ES:BX
+;   load sectors into ES:BX
+;   AL : number of sectors to read
 ;   CL : starting sector (start from index 1)
 ;   CH : cylinder number (start from index 0)
 ;   DH : head number (start from index 0)
+;   DL : drive number
 ;----------------------------------------------------
 disk_load_16:
     pusha
-    
-    disk_16_loop_retry:
-    push bx
-    push ax
-    
+    push bp
+    mov bp, sp
+
+    ; store number of sectors to read on stack
+    sub sp, 2
+    mov BYTE [bp - 2], al
+
+    ; call BIOS interrupt 13
     disk_16_loop:
+    push ax
+    push cx
+    push dx
+
     mov ah, 0x02
-    ;mov al, dh    ; number of sectors to read (0x01 .. 0x80)
-    ;mov cl, 0x02  ; starting sector
-    ;mov ch, 0x00  ; cylinder number
-    ;mov dh, 0x00  ; head number
     int 0x13
-    jc disk_16_loop
+    jc disk_16_retry
+    cmp al, BYTE [bp - 2]
+    jne disk_16_retry
 
-    mov bl, al
+    jmp disk_16_end
+
+    disk_16_retry:
     pop ax
-    cmp al, bl
-    pop bx
-    jne sectors_16_error
+    pop cx
+    pop dx
+    jmp disk_16_loop
 
+    disk_16_end:
+    pop ax
+    pop cx
+    pop dx
+
+    add sp, 2
+    pop bp
     popa
     ret
-
-
-sectors_16_error:
-    push bx
-    mov bx, SECTORS_ERROR
-    call print_16
-    pop bx
-    
-    jmp disk_16_loop_retry
-
-
-SECTORS_ERROR: db "Incorrect number of sectors read", 0
 
 
 %endif ; disk_16_included
