@@ -13,4 +13,6 @@ extern void memset(void* ptr, uint8_t val, size_t size);
 
 extern void int_to_string(uint32_t val, uint8_t* buffer);
 
+extern void hex_to_string(uint32_t val, uint8_t* buffer);
+
 #endif  // string_included

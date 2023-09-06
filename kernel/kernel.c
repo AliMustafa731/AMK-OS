@@ -16,5 +16,8 @@ void kernel_main()
     print("AMK-OS started");
     __asm__("int $100");
     __asm__("sti");
+
+    uint32_t val = 0x9999;
+    printf("hello 0x%x hex = %i decimal, %s \n", val, val, "extra string");
 }
 

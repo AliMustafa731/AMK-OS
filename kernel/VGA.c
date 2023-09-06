@@ -1,6 +1,7 @@
 
 #include <kernel/VGA.h>
 #include <kernel/hardware.h>
+#include <libc/string.h>
 
 #define VIDEO_MEMORY 0xB8000
 #define VIDEO_MEMORY_LIMIT 0xB8FA0
@@ -14,7 +15,7 @@ int current_mem = 0;
 
 void clear_screen()
 {
-    char* mem = (char*)VIDEO_MEMORY;
+    uint8_t* mem = (uint8_t*)VIDEO_MEMORY;
 
     while((int)mem < VIDEO_MEMORY_LIMIT)
     {
@@ -29,16 +30,70 @@ void clear_screen()
     update_cursor(current_x, current_y);
 }
 
-void print(char* text)
+void print(uint8_t* text)
 {
-    char* c = text;
-    char* mem = (char*)VIDEO_MEMORY;
+    uint8_t* c = text;
+    uint8_t* mem = (uint8_t*)VIDEO_MEMORY;
 
     while(*c != 0)
     {
         if (*c == 0x0A)
         {
             print_nl();
+        }
+        else
+        {
+            mem[current_mem] = *c;    current_mem++;
+            mem[current_mem] = 0x0E;  current_mem++;
+        }
+        c++;
+    }
+
+    current_x = (current_mem / 2) % WIDTH;
+    current_y = (current_mem / 2) / WIDTH;
+
+    update_cursor(current_x, current_y);
+}
+
+void printf(uint8_t* text, ...)
+{
+    uint8_t* c = text;
+    uint8_t* mem = (uint8_t*)VIDEO_MEMORY;
+
+    uint8_t *args = (uint8_t*)&text + sizeof(text);
+
+    while(*c != 0)
+    {
+        if (*c == 0x0A)
+        {
+            print_nl();
+        }
+        else if (*c == '%')
+        {
+            c++;
+
+            if (*c == 's')
+            {
+                uint8_t* str = *((uint8_t**)args);  args += sizeof(uint8_t*);
+
+                print(str);
+            }
+            else if (*c == 'i')
+            {
+                uint32_t val = *((uint32_t*)args);  args += sizeof(uint32_t);
+
+                uint8_t buff[15];
+                int_to_string(val, buff);
+                print(buff);
+            }
+            else if (*c == 'x')
+            {
+                uint32_t val = *((uint32_t*)args);  args += sizeof(uint32_t);
+                
+                uint8_t buff[15];
+                hex_to_string(val, buff);
+                print(buff);
+            }
         }
         else
         {

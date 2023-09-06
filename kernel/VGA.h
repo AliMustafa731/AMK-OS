@@ -5,7 +5,9 @@
 
 extern void update_cursor(int x, int y);
 
-extern void print(char* text);
+extern void print(uint8_t* text);
+
+extern void printf(uint8_t* text, ...);
 
 extern void print_nl();
 
