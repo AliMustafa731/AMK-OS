@@ -13,4 +13,6 @@ extern void print_nl();
 
 extern void clear_screen();
 
+extern void VGA_set_color(uint8_t color);
+
 #endif  // vga_included

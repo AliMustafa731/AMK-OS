@@ -8,10 +8,15 @@
 #define WIDTH 80
 #define HEIGHT 25
 
-int current_x = 0;
-int current_y = 0;
-int current_mem = 0;
+static int VGA_current_x = 0;
+static int VGA_current_y = 0;
+static int VGA_current_mem = 0;
+static uint8_t VGA_color = 0x0E;
 
+void VGA_set_color(uint8_t color)
+{
+    VGA_color = color;
+}
 
 void clear_screen()
 {
@@ -19,15 +24,15 @@ void clear_screen()
 
     while((int)mem < VIDEO_MEMORY_LIMIT)
     {
-        *mem = 0x00;  mem++;
-        *mem = 0x0E;  mem++;
+        *mem = 0x00;       mem++;
+        *mem = VGA_color;  mem++;
     }
 
-    current_mem = 0;
-    current_x = 0;
-    current_y = 0;
+    VGA_current_mem = 0;
+    VGA_current_x = 0;
+    VGA_current_y = 0;
 
-    update_cursor(current_x, current_y);
+    update_cursor(VGA_current_x, VGA_current_y);
 }
 
 void print(uint8_t* text)
@@ -43,16 +48,16 @@ void print(uint8_t* text)
         }
         else
         {
-            mem[current_mem] = *c;    current_mem++;
-            mem[current_mem] = 0x0E;  current_mem++;
+            mem[VGA_current_mem] = *c;         VGA_current_mem++;
+            mem[VGA_current_mem] = VGA_color;  VGA_current_mem++;
         }
         c++;
     }
 
-    current_x = (current_mem / 2) % WIDTH;
-    current_y = (current_mem / 2) / WIDTH;
+    VGA_current_x = (VGA_current_mem / 2) % WIDTH;
+    VGA_current_y = (VGA_current_mem / 2) / WIDTH;
 
-    update_cursor(current_x, current_y);
+    update_cursor(VGA_current_x, VGA_current_y);
 }
 
 void printf(uint8_t* text, ...)
@@ -97,25 +102,25 @@ void printf(uint8_t* text, ...)
         }
         else
         {
-            mem[current_mem] = *c;    current_mem++;
-            mem[current_mem] = 0x0E;  current_mem++;
+            mem[VGA_current_mem] = *c;         VGA_current_mem++;
+            mem[VGA_current_mem] = VGA_color;  VGA_current_mem++;
         }
         c++;
     }
 
-    current_x = (current_mem / 2) % WIDTH;
-    current_y = (current_mem / 2) / WIDTH;
+    VGA_current_x = (VGA_current_mem / 2) % WIDTH;
+    VGA_current_y = (VGA_current_mem / 2) / WIDTH;
 
-    update_cursor(current_x, current_y);
+    update_cursor(VGA_current_x, VGA_current_y);
 }
 
 void print_nl()
 {
-    current_x = 0;
-    current_y += 1;
-    current_mem = current_y * WIDTH * 2;
+    VGA_current_x = 0;
+    VGA_current_y += 1;
+    VGA_current_mem = VGA_current_y * WIDTH * 2;
 
-    update_cursor(current_x, current_y);
+    update_cursor(VGA_current_x, VGA_current_y);
 }
 
 void update_cursor(int x, int y)

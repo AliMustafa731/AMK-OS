@@ -32,7 +32,7 @@ $(BUILD_DIR)/amkos.img: $(BUILD_DIR)/boot.bin $(BUILD_DIR)/kernel.bin
 	$(dd) if=$(BUILD_DIR)/kernel.bin of=$@ seek=1
 
 $(BUILD_DIR)/kernel.bin : $(BUILD_DIR)/kernel/kernel_entry.o $(KERNEL_OBJ)
-	$(ld) -o $@ -Ttext 0xF0000 $^ --oformat binary
+	$(ld) -o $@ -Ttext 0x10000 $^ --oformat binary
 
 $(BUILD_DIR)/boot.bin : bootloader/boot.asm
 	$(asm) -f bin -MD $(@:.bin=.d) $< -o $@
