@@ -4,7 +4,7 @@
 ;-------------------------
 ;   Memory map entry
 ;-------------------------
-struc MemoryMapEntry
+struc memory_map_entry
     .base_address    resq    1
     .length          resq    1
     .type            resd    1
@@ -39,6 +39,57 @@ struc multiboot_info
     .vbe_interface_off  resw    1
     .vbe_interface_len  resw    1
 endstruc
+
+;------------------------------------------------
+;   Get memory map from BIOS
+;   /in ES:DI -> destination buffer for entries
+;   /ret BP = entry count
+;------------------------------------------------
+BIOS_get_memory_map:
+    pushad
+    xor   ebx, ebx
+    xor   bp, bp           ; number of entries stored here
+    mov   edx, 'PAMS'      ; 'SMAP'
+    mov   eax, 0xE820
+    mov   ecx, 24          ; memory map entry struct is 24 bytes
+    int   0x15             ; get first entry
+    jc    BIOS_mmap_error    
+    cmp   eax, 'PAMS'        ; BIOS returns SMAP in eax
+    jne   BIOS_mmap_error
+    test  ebx, ebx           ; if ebx=0 then list is one entry long; bail out
+    je    BIOS_mmap_error
+    jmp   BIOS_mmap_start
+
+BIOS_mmap_next_entry:
+    mov    edx, 'PAMS'    ; some BIOS's trash this register
+    mov    ecx, 24        ; entry is 24 bytes
+    mov    eax, 0xE820
+    int    0x15           ; get next entry
+
+BIOS_mmap_start:
+    jcxz   BIOS_mmap_skip_entry    ; if actual returned bytes is 0, skip entry
+BIOS_mmap_notext:
+    mov    ecx, [es:di + memory_map_entry.length]  ; get length (low dword)
+    test   ecx, ecx                                ; if length is 0 skip it
+    jne    short BIOS_mmap_good_entry
+    mov    ecx, [es:di + memory_map_entry.length + 4]  ; get length (upper dword)
+    jecxz  BIOS_mmap_skip_entry                        ; if length is 0 skip it
+
+BIOS_mmap_good_entry:
+    inc    bp              ; increment entry count
+    add    di, 24          ; point di to next entry in buffer
+
+BIOS_mmap_skip_entry:
+    cmp    ebx, 0                 ; if ebx return is 0, list is done
+    jne    BIOS_mmap_next_entry   ; get next entry
+    jmp    BIOS_mmap_done
+
+BIOS_mmap_error:
+    stc
+
+BIOS_mmap_done:
+    popad
+    ret
 
 ;---------------------------------------------
 ;    Get memory size for > 64M configuations

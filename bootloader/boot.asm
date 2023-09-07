@@ -62,9 +62,9 @@ main_16:
     mov dl, [boot_info + multiboot_info.bootDevice]
     call disk_load_16
 
-    ;------------------------------------
-    ;   Enable A20 & Get memory size
-    ;------------------------------------
+    ;-----------------------------------------
+    ;   Get memory map & size and Enable A20
+    ;-----------------------------------------
     call Enable_A20
 
     xor eax, eax
@@ -73,6 +73,11 @@ main_16:
 
     mov	word [boot_info + multiboot_info.memoryHi], bx
     mov	word [boot_info + multiboot_info.memoryLo], ax
+
+    xor eax, eax
+    mov es, ax
+    mov di, 0x9000
+    call BIOS_get_memory_map
 
     ;-----------------------------------
     ;   loading the kernel at 0x10000
