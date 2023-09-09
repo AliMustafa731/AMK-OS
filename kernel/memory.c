@@ -11,7 +11,7 @@ static int MMngr_used_blocks = 0;
 static int MMngr_max_blocks = 0;
 
 // memory map bit array. Each bit represents a 4KB memory block
-// set at address above 1MB
+// (1 = used block), (0 = free block)
 static uint32_t* MMngr_memory_map = (uint32_t*)0x100000;
 
 
@@ -23,7 +23,7 @@ static inline int mmap_is_set(uint32_t bit)
 
 static inline void mmap_set(uint32_t bit)
 {
-    if (mmap_is_set(bit))
+    if (!mmap_is_set(bit))
     {
         MMngr_memory_map[bit / 32] |= (1 << (bit % 32));
         MMngr_used_blocks++;
@@ -32,7 +32,7 @@ static inline void mmap_set(uint32_t bit)
 
 static inline void mmap_unset(uint32_t bit)
 {
-    if (!mmap_is_set(bit))
+    if (mmap_is_set(bit))
     {
         MMngr_memory_map[bit / 32] &= ~(1 << (bit % 32));
         MMngr_used_blocks--;
@@ -47,9 +47,6 @@ void MMngr_init(size_t mem_size)
     // By default, all memory is in use
     MMngr_used_blocks = MMngr_max_blocks;
     memset(MMngr_memory_map, 0xFF, MMngr_max_blocks / MMNGR_BLOCKS_PER_BYTE);
-
-    // disable the first 1MB of memory (it's reserved)
-    MMngr_disable_region(0, 0x100000);
 }
 
 // accessors
@@ -65,10 +62,10 @@ void MMngr_enable_region(uint32_t base, size_t size)
 
     while (blocks >= 0)
     {
-		mmap_set(base);
+        mmap_unset(base);
         base++;
         blocks--;
-	}
+    }
 
     // first block is always set. This insures allocs can't be 0 (NULL)
     mmap_set(0);
@@ -81,10 +78,10 @@ void MMngr_disable_region(uint32_t base, size_t size)
 
     while (blocks >= 0)
     {
-		mmap_set(base);
+        mmap_set(base);
         base++;
         blocks--;
-	}
+    }
 }
 
 int MMngr_get_free_block_index()
