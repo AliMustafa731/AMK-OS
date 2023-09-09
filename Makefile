@@ -21,7 +21,7 @@ BOOT_DEPS := $(BUILD_DIR)/boot.d
 
 
 run: $(BUILD_DIR)/amkos.img
-	$(qemu) -accel hax -hda $<
+	$(qemu) -accel hax -hda $< -m 256
 
 -include $(BOOT_DEPS)
 -include $(KERNEL_DEPS)

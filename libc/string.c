@@ -24,17 +24,17 @@ void memcpy(void* dest, void* src, size_t size)
 {
     uint8_t *_src = (uint8_t*)src;
     uint8_t *_dest = (uint8_t*)dest;
-	int i = 0;
+    int i = 0;
 
-	while (i < size) { _dest[i] = _src[i];  i++; }
+    while (i < size) { _dest[i] = _src[i];  i++; }
 }
 
 void memset(void* ptr, uint8_t val, size_t size)
 {
     uint8_t *_ptr = (uint8_t*)ptr;
-	int i = 0;
+    int i = 0;
 
-	while (i < size) { _ptr[i] = val;  i++; }
+    while (i < size) { _ptr[i] = val;  i++; }
 }
 
 void int_to_string(uint32_t val, uint8_t* buffer)
@@ -68,7 +68,7 @@ void hex_to_string(uint32_t val, uint8_t* buffer)
     do
     {
         _buffer[digits_count] = (val & 0xF) + 0x30;
-        val /= 16;
+        val = val >> 4;  // divide by 16
         if (_buffer[digits_count] > 0x39) { _buffer[digits_count] += 7; }
 
         digits_count++;
