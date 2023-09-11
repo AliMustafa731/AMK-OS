@@ -1,25 +1,5 @@
-#ifndef memory_included
-#define memory_included
-
-#include <libc/stdint.h>
-
-extern void MMngr_init(size_t mem_size);
-
-extern void MMngr_enable_region(uint32_t base, size_t size);
-
-extern void MMngr_disable_region(uint32_t base, size_t size);
-
-extern int MMngr_get_free_block_index();
-
-extern void* MMngr_alloc_block();
-
-extern void MMngr_free_block(void* ptr);
-
-// accessors
-extern int MMngr_get_memory_size();
-extern int MMngr_get_used_blocks();
-extern int MMngr_get_free_blocks();
-extern int MMngr_get_max_blocks();
+#ifndef bootinfo_included
+#define bootinfo_included
 
 // Structures for Info passed from the BIOS
 typedef struct _Memory_region_t
@@ -58,4 +38,4 @@ typedef struct _Multiboot_info_t
     uint16_t  m_vbe_interface_len;
 } __attribute__((packed)) Multiboot_info_t;
 
-#endif  // memory_included
+#endif // bootinfo_included

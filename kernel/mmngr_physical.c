@@ -1,5 +1,5 @@
 
-#include <kernel/memory.h>
+#include <kernel/mmngr_physical.h>
 #include <libc/string.h>
 
 #define MMNGR_BLOCK_SIZE 4096

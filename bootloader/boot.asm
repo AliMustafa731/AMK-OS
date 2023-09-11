@@ -4,41 +4,17 @@
 [org 0x7C00]
 [bits 16]
 
-%define KERNEL_OFFSET 0x10000
+%define KERNEL_OFFSET  0x10000
+%define MEMORY_MAP_LOC 0x9100
+%define BOOT_INFO_LOC  0x9000
 
 jmp main_16
 
 %include "bootloader/disk_16.inc"
 %include "bootloader/memory.inc"
 
-boot_info:
-istruc multiboot_info
-    at multiboot_info.flags,              dd 0
-    at multiboot_info.memoryLo,           dd 0
-    at multiboot_info.memoryHi,           dd 0
-    at multiboot_info.bootDevice,         dd 0
-    at multiboot_info.cmdLine,            dd 0
-    at multiboot_info.mods_count,         dd 0
-    at multiboot_info.mods_addr,          dd 0
-    at multiboot_info.syms0,              dd 0
-    at multiboot_info.syms1,              dd 0
-    at multiboot_info.syms2,              dd 0
-    at multiboot_info.mmap_length,        dd 0
-    at multiboot_info.mmap_addr,          dd 0
-    at multiboot_info.drives_length,      dd 0
-    at multiboot_info.drives_addr,        dd 0
-    at multiboot_info.config_table,       dd 0
-    at multiboot_info.bootloader_name,    dd 0
-    at multiboot_info.apm_table,          dd 0
-    at multiboot_info.vbe_control_info,   dd 0
-    at multiboot_info.vbe_mode_info,      dw 0
-    at multiboot_info.vbe_interface_seg,  dw 0
-    at multiboot_info.vbe_interface_off,  dw 0
-    at multiboot_info.vbe_interface_len,  dw 0
-iend
-
 main_16:
-    mov [boot_info + multiboot_info.bootDevice], dl
+    mov [BOOT_INFO_LOC + multiboot_info.bootDevice], dl
 
     ;------------------------------------
     ;   set the stack at safe memorey
@@ -59,7 +35,7 @@ main_16:
     mov cl, 0x2   ; starting sector
     mov ch, 0x0   ; cylinder number
     mov dh, 0x0   ; head number
-    mov dl, [boot_info + multiboot_info.bootDevice]
+    mov dl, [BOOT_INFO_LOC + multiboot_info.bootDevice]
     call disk_load_16
 
     ;-----------------------------------------
@@ -71,12 +47,12 @@ main_16:
     xor ebx, ebx
     call BIOS_get_memory_size
 
-    mov word [boot_info + multiboot_info.memoryHi], bx
-    mov word [boot_info + multiboot_info.memoryLo], ax
+    mov word [BOOT_INFO_LOC + multiboot_info.memoryHi], bx
+    mov word [BOOT_INFO_LOC + multiboot_info.memoryLo], ax
 
     xor eax, eax
     mov es, ax
-    mov di, 0x9000
+    mov di, MEMORY_MAP_LOC  ; the destination buffer to store the memory map
     call BIOS_get_memory_map
 
     ;-----------------------------------
@@ -90,7 +66,7 @@ main_16:
     mov cl, 0x5   ; starting sector
     mov ch, 0x0   ; cylinder number
     mov dh, 0x0   ; head number
-    mov dl, [boot_info + multiboot_info.bootDevice]
+    mov dl, [BOOT_INFO_LOC + multiboot_info.bootDevice]
     call disk_load_16
 
     ;-------------------------------------
@@ -120,10 +96,11 @@ start_pm:
     ;-----------------------------------------
     ;  give control to the C Kernel
     ;-----------------------------------------
-    ;  push pointer to boot_info on the stack
+    ;  push pointers to boot_info on the stack
     ;  so that kernel_main() can read it
     ;-----------------------------------------
-    push boot_info
+    push MEMORY_MAP_LOC
+    push BOOT_INFO_LOC
     jmp KERNEL_OFFSET
     
     hlt

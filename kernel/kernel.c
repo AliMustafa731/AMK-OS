@@ -1,8 +1,9 @@
 
 #include <kernel/hardware.h>
-#include <kernel/memory.h>
+#include <kernel/mmngr_physical.h>
 #include <kernel/PIT.h>
 #include <kernel/VGA.h>
+#include <kernel/bootinfo.h>
 #include <libc/stdint.h>
 #include <libc/string.h>
 
@@ -15,7 +16,8 @@ char* str_memory_types[] =
     "ACPI NVS Memory"   //memory_region.type == 4
 };
 
-void kernel_main(Multiboot_info_t *boot_info)
+// these parameters are passed from the Bootloader
+void kernel_main(Multiboot_info_t *boot_info, Memory_region_t *mem_regions)
 {
     Hardware_init();
 
@@ -29,8 +31,6 @@ void kernel_main(Multiboot_info_t *boot_info)
     print("hello world\n");
     print("AMK-OS started\n");
     asm("sti");
-
-    Memory_region_t *mem_regions = (Memory_region_t*)0x9000;
 
     printf("Drive number : 0x%x, Memory %i MB\n", boot_info->m_bootDevice, mem_size / 1024);
     print("Physical Memory map :\n");
