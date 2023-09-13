@@ -31,6 +31,31 @@
 
 typedef uint32_t PageEntry_t;
 
+#define PAGES_PER_TABLE      1024
+#define PAGE_TABLES_PER_DIR  1024
+
+#define PAGE_DIRECTORY_INDEX(x)  (((x) >> 22) & 0x3FF)
+#define PAGE_TABLE_INDEX(x)      (((x) >> 12) & 0x3FF)
+#define PAGE_OFFSET(x)           ((x) & 0xFFF)
+
+typedef struct _PageDirectory_t
+{
+    PageEntry_t entries[PAGE_TABLES_PER_DIR];
+
+} PageDirectory_t;
+
+typedef struct _PageTable_t
+{
+    PageEntry_t entries[PAGES_PER_TABLE];
+
+} PageTable_t;
+
+extern void Paging_enable();
+
+extern void Paging_disable();
+
+extern int Is_Paging();
+
 extern void PTE_set_flag(PageEntry_t *e, uint32_t flags);
 
 extern void PTE_unset_flag(PageEntry_t *e, uint32_t flags);
@@ -38,6 +63,6 @@ extern void PTE_unset_flag(PageEntry_t *e, uint32_t flags);
 // set frame addres of the page entry
 extern void PTE_set_frame(PageEntry_t *e, uint32_t address);
 
-extern uint32_t PTE_get_frame(PageEntry_t e);
+extern uint32_t PTE_get_frame(PageEntry_t *e);
 
 #endif // paging_included

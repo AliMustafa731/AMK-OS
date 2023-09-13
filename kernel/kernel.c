@@ -1,6 +1,7 @@
 
 #include <kernel/hardware.h>
 #include <kernel/mmngr_physical.h>
+#include <kernel/mmngr_virtual.h>
 #include <kernel/PIT.h>
 #include <kernel/VGA.h>
 #include <kernel/bootinfo.h>
@@ -23,6 +24,7 @@ void kernel_main(Multiboot_info_t *boot_info, Memory_region_t *mem_regions)
 
     uint32_t mem_size = 1024 + boot_info->m_memoryLo + boot_info->m_memoryHi * 64;
     MMngr_init(mem_size);
+    VMMngr_init();
 
     PIT_start_counter(0xFFFF, PIT_OCW_COUNTER_0, PIT_OCW_MODE_SQUAREWAVEGEN);
 

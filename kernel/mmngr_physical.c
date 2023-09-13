@@ -2,9 +2,12 @@
 #include <kernel/mmngr_physical.h>
 #include <libc/string.h>
 
+//------------------------------------------
+//   Physical Memory Manager
+//------------------------------------------
+
 #define MMNGR_BLOCK_SIZE 4096
 #define MMNGR_BLOCKS_PER_BYTE 8
-
 
 static int MMngr_memory_size = 0;  // size of physical memory in KB
 static int MMngr_used_blocks = 0;

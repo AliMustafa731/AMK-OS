@@ -1,5 +1,7 @@
 
 #include <kernel/hardware.h>
+#include <kernel/mmngr_physical.h>
+#include <kernel/mmngr_virtual.h>
 #include <kernel/IDT.h>
 #include <kernel/GDT.h>
 #include <kernel/PIC.h>

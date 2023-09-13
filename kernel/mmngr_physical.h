@@ -3,6 +3,10 @@
 
 #include <libc/stdint.h>
 
+//------------------------------------------
+//   Physical Memory Manager
+//------------------------------------------
+
 extern void MMngr_init(size_t mem_size);
 
 extern void MMngr_enable_region(uint32_t base, size_t size);
