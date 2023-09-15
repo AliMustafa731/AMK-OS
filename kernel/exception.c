@@ -134,6 +134,7 @@ void Exception_invalid_opcode (uint32_t cs, uint32_t eip, uint32_t eflags)
     __asm__("pusha");
 
     print("Invalid Opcode fault\n");
+    printf("CS : 0x%x, EIP : 0x%x, EFLAGS : 0x%x", cs, eip, eflags);
     while(1){}  // halt
 
     __asm__("popa");

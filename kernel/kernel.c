@@ -22,17 +22,16 @@ void kernel_main(Multiboot_info_t *boot_info, Memory_region_t *mem_regions)
 {
     Hardware_init();
 
+    PIT_start_counter(0xFFFF, PIT_OCW_COUNTER_0, PIT_OCW_MODE_SQUAREWAVEGEN);
+    VGA_set_color(0x3F);
+
     uint32_t mem_size = 1024 + boot_info->m_memoryLo + boot_info->m_memoryHi * 64;
     MMngr_init(mem_size);
-    VMMngr_init();
 
-    PIT_start_counter(0xFFFF, PIT_OCW_COUNTER_0, PIT_OCW_MODE_SQUAREWAVEGEN);
-
-    VGA_set_color(0x3F);
     clear_screen();
     print("hello world\n");
     print("AMK-OS started\n");
-    asm("sti");
+    __asm__("sti");
 
     printf("Drive number : 0x%x, Memory %i MB\n", boot_info->m_bootDevice, mem_size / 1024);
     print("Physical Memory map :\n");
@@ -58,9 +57,12 @@ void kernel_main(Multiboot_info_t *boot_info, Memory_region_t *mem_regions)
         mem_regions[i].type,    str_memory_types[mem_regions[i].type-1]);
     }
 
+    MMngr_disable_region(0, 0x400000);
+
+    VMMngr_init();
+
     print("\nCurrent Memory Blocks : 4KB each\n");
     printf("Total : %i, Used : %i, Free : %i\n",
             MMngr_get_max_blocks(), MMngr_get_used_blocks(), MMngr_get_free_blocks()
     );
 }
-

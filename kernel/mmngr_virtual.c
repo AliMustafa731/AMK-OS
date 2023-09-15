@@ -7,85 +7,58 @@
 //   Virtual Memory Manager
 //------------------------------------------
 
-// current directory table
-PageDirectory_t* VMMngr_cur_directory = NULL;
+// each page entry is 32 bit
 
-// current page directory base register
-uintptr_t VMMngr_PDBR = NULL;
+#define PAGE_DIRECTORY_INDEX(x) (((x) >> 22) & 0x3FF)
+#define PAGE_TABLE_INDEX(x)     (((x) >> 12) & 0x3FF)
+#define PAGE_FRAME(x)           ((x) & 0xFFFFF000)
 
-void MMngr_load_PDBR(uintptr_t address)
-{
-    __asm__("movl %%eax, %%cr3" : : "a" (address));
-}
+uint32_t* page_dir   = (uint32_t*)0;
+uint32_t* page_table = (uint32_t*)0;
 
 void VMMngr_init()
 {
-    PageDirectory_t* dir = (PageDirectory_t*)MMngr_alloc_block();
+    // identity map the first 16MB
+    page_dir = MMngr_alloc_block();
 
-    // identity map the first 4MB of memory
-    VMMngr_map_pages(0, 0, 0x400000);
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        page_dir[i] = (uint32_t)MMngr_alloc_block();
+        page_dir[i] |= PAGE_PRESENT | PAGE_WRITABLE;
+        page_table = (uint32_t*)(PAGE_FRAME(page_dir[i]));
 
-    VMMngr_switch_page_directory(dir);
-}
+        for (int j = 0 ; j < 1024 ; j++)
+        {
+            page_table[j] = ((j + i * 1024) * 4096) | 3;
+        }
+    }
+    
+    __asm__("movl %%eax, %%cr3" : : "a" (page_dir));
 
-int VMMngr_switch_page_directory(PageDirectory_t* dir)
-{
-    if (dir == NULL) { return 0; }
-
-    VMMngr_cur_directory = dir;
-    VMMngr_PDBR = (uintptr_t)&dir->entries[0];
-
-    MMngr_load_PDBR(VMMngr_PDBR);
-
-    return 1;
-}
-
-PageDirectory_t* VMMngr_get_page_directory() { return VMMngr_cur_directory; }
-
-int VMMngr_alloc_page(PageEntry_t *e)
-{
-    void* p = MMngr_alloc_block();
-    if (p == NULL) { return 0; }
-
-    PTE_set_frame(e, (uintptr_t)p);
-    PTE_set_flag(e, PTE_PRESENT | PTE_WRITABLE);
-
-    return 1;
-}
-
-void VMMngr_free_page(PageEntry_t *e)
-{
-    void* p = (void*)PTE_get_frame(e);
-    if (p != NULL) { MMngr_free_block(p); }
-
-    PTE_unset_flag(e, PTE_PRESENT | PTE_WRITABLE);
+    Paging_enable();
 }
 
 int VMMngr_map_page(uintptr_t physical, uintptr_t virtual)
 {
-    // get page directory
-    PageDirectory_t* dir = VMMngr_get_page_directory();
-
     // get page table
-    PageEntry_t* table_entry = &dir->entries[PAGE_DIRECTORY_INDEX(virtual)];
+    uint32_t* table_entry = &page_dir[PAGE_DIRECTORY_INDEX(virtual)];
 
-    if (!(*table_entry & PTE_PRESENT)) // page table not present, allocate it
+    if ((*table_entry & PAGE_PRESENT) != PAGE_PRESENT) // page table not present, allocate it
     {
-        if (VMMngr_alloc_page(table_entry) == 0) // allocate 4KB block
-        {
-            return 0;
-        } 
-        memset((void*)PTE_get_frame(table_entry), 0, sizeof(PageTable_t)); // clear
+        void* p = MMngr_alloc_block();
+        if (p == NULL) { return 0; }
+        memset((void*)p, 0, 4096); // clear
+
+        *table_entry |= ((uint32_t)p) | PAGE_PRESENT | PAGE_WRITABLE;
     }
 
     // get page table
-    PageTable_t* table = (PageTable_t*)PTE_get_frame(table_entry);
+    uint32_t* table = (uint32_t*)PAGE_FRAME(*table_entry);
 
     // get page
-    PageEntry_t* page = &table->entries[PAGE_TABLE_INDEX(virtual)];
+    uint32_t* page = &table[PAGE_TABLE_INDEX(virtual)];
 
-    PTE_set_frame(page, physical);
-    PTE_set_flag(page, PTE_PRESENT | PTE_WRITABLE);
+    *page |= PAGE_FRAME(physical) | PAGE_PRESENT | PAGE_WRITABLE;
 
     return 1;
 }
@@ -99,4 +72,19 @@ int VMMngr_map_pages(uintptr_t physical, uintptr_t virtual, int32_t length)
         virtual += 4096;
         length -= 4096;
     }
+}
+
+// other utilities
+inline void Paging_enable()
+{
+    __asm__("mov %cr0, %eax");
+    __asm__("or $0x80000001, %eax"); // set bit 31
+    __asm__("mov %eax, %cr0");
+}
+
+inline void Paging_disable()
+{
+    __asm__("mov %cr0, %eax");
+    __asm__("and $0x7FFFFFFF, %eax"); // clear bit 31
+    __asm__("mov %eax, %cr0");
 }
