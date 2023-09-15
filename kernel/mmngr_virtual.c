@@ -13,28 +13,23 @@
 #define PAGE_TABLE_INDEX(x)     (((x) >> 12) & 0x3FF)
 #define PAGE_FRAME(x)           ((x) & 0xFFFFF000)
 
-uint32_t* page_dir   = (uint32_t*)0;
-uint32_t* page_table = (uint32_t*)0;
+static uint32_t* page_dir   = (uint32_t*)0;
+static uint32_t* page_table = (uint32_t*)0;
+
+static inline void load_cr3(uintptr_t dir_address)
+{
+    __asm__("movl %%eax, %%cr3" : : "a" (dir_address));
+}
 
 void VMMngr_init()
 {
     // identity map the first 16MB
     page_dir = MMngr_alloc_block();
 
-    for (int i = 0 ; i < 4 ; i++)
-    {
-        page_dir[i] = (uint32_t)MMngr_alloc_block();
-        page_dir[i] |= PAGE_PRESENT | PAGE_WRITABLE;
-        page_table = (uint32_t*)(PAGE_FRAME(page_dir[i]));
-
-        for (int j = 0 ; j < 1024 ; j++)
-        {
-            page_table[j] = ((j + i * 1024) * 4096) | 3;
-        }
-    }
+    memset(page_dir, 0, 4096); // clear
+    VMMngr_map_pages(0, 0, 0x1000000); // map first 16MB of memory
     
-    __asm__("movl %%eax, %%cr3" : : "a" (page_dir));
-
+    load_cr3((uintptr_t)page_dir);
     Paging_enable();
 }
 

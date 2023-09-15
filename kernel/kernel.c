@@ -20,22 +20,23 @@ char* str_memory_types[] =
 // these parameters are passed from the Bootloader
 void kernel_main(Multiboot_info_t *boot_info, Memory_region_t *mem_regions)
 {
+    // initialize some hardware devices
     Hardware_init();
-
     PIT_start_counter(0xFFFF, PIT_OCW_COUNTER_0, PIT_OCW_MODE_SQUAREWAVEGEN);
     VGA_set_color(0x3F);
 
+    // initialize memory map
     uint32_t mem_size = 1024 + boot_info->m_memoryLo + boot_info->m_memoryHi * 64;
     MMngr_init(mem_size);
 
+    // print stuff
     clear_screen();
-    print("hello world\n");
-    print("AMK-OS started\n");
     __asm__("sti");
 
     printf("Drive number : 0x%x, Memory %i MB\n", boot_info->m_bootDevice, mem_size / 1024);
     print("Physical Memory map :\n");
 
+    // print the memory map
     for (int i = 0 ; i < 15 ; i++)
     {
         if (mem_regions[i].type > 4) // if type is > 4 mark it reserved
@@ -57,8 +58,10 @@ void kernel_main(Multiboot_info_t *boot_info, Memory_region_t *mem_regions)
         mem_regions[i].type,    str_memory_types[mem_regions[i].type-1]);
     }
 
+    // the first 4MB are reserved
     MMngr_disable_region(0, 0x400000);
 
+    // enable paging
     VMMngr_init();
 
     print("\nCurrent Memory Blocks : 4KB each\n");
