@@ -29,7 +29,7 @@ void PIT_interrupt_handler(uint32_t cs, uint32_t eip, uint32_t eflags)
 
 void PIT_init()
 {
-    IDT_install_int(32, (uint32_t)PIT_interrupt_handler, 0x8, IDT_DESC_32_BIT | IDT_DESC_SEG_PRESENT);
+    IDT_install_int(PIC_INT_TIMER, (uintptr_t)PIT_interrupt_handler, 0x8, IDT_DESC_32_BIT | IDT_DESC_SEG_PRESENT);
 }
 
 void PIT_start_counter(uint16_t start_value, uint8_t counter, uint8_t mode)
