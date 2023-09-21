@@ -16,7 +16,7 @@
 
 #define IDT_MAX_INTERRUPTS 256
 
-typedef struct _IDT_Descriptor_t
+typedef struct __attribute__((packed)) _IDT_Descriptor_t
 {
     uint16_t BaseLow;
     uint16_t Segment;
@@ -24,14 +24,14 @@ typedef struct _IDT_Descriptor_t
     uint8_t Flags;
     uint16_t BaseHigh;
     
-} __attribute__((packed)) IDT_Descriptor_t;
+} IDT_Descriptor_t;
 
-typedef struct _IDT_Register_t
+typedef struct __attribute__((packed)) _IDT_Register_t
 {
     uint16_t size;
     uint32_t address;
     
-} __attribute__((packed)) IDT_Register_t;
+} IDT_Register_t;
 
 
 extern IDT_Descriptor_t* IDT_get_int(uint16_t index);

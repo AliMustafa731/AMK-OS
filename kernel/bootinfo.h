@@ -4,7 +4,7 @@
 #include <libc/stdint.h>
 
 // Structures for Info passed from the BIOS
-typedef struct _Memory_region_t
+typedef struct __attribute__((packed)) _Memory_region_t
 {
     uint32_t  startLo;
     uint32_t  startHi;
@@ -12,9 +12,9 @@ typedef struct _Memory_region_t
     uint32_t  sizeHi;
     uint32_t  type;
     uint32_t  acpi_3_0;
-} __attribute__((packed)) Memory_region_t;
+} Memory_region_t;
 
-typedef struct _Multiboot_info_t
+typedef struct __attribute__((packed)) _Multiboot_info_t
 {
     uint32_t  m_flags;
     uint32_t  m_memoryLo;
@@ -38,6 +38,6 @@ typedef struct _Multiboot_info_t
     uint16_t  m_vbe_mode;
     uint32_t  m_vbe_interface_addr;
     uint16_t  m_vbe_interface_len;
-} __attribute__((packed)) Multiboot_info_t;
+} Multiboot_info_t;
 
 #endif // bootinfo_included
