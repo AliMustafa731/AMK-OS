@@ -1,6 +1,6 @@
 
-#include <kernel/mmngr_virtual.h>
-#include <kernel/mmngr_physical.h>
+#include <kernel/memory/mem_virtual.h>
+#include <kernel/memory/mem_physical.h>
 #include <libc/string.h>
 
 //------------------------------------------

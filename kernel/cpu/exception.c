@@ -1,7 +1,7 @@
 
-#include <kernel/exception.h>
+#include <kernel/cpu/exception.h>
 #include <kernel/hardware.h>
-#include <kernel/IDT.h>
+#include <kernel/cpu/IDT.h>
 #include <kernel/VGA.h>
 
 //------------------------------------

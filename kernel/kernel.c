@@ -1,7 +1,7 @@
 
 #include <kernel/hardware.h>
-#include <kernel/mmngr_physical.h>
-#include <kernel/mmngr_virtual.h>
+#include <kernel/memory/mem_physical.h>
+#include <kernel/memory/mem_virtual.h>
 #include <kernel/PIT.h>
 #include <kernel/VGA.h>
 #include <kernel/bootinfo.h>

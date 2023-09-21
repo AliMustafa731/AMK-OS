@@ -1,7 +1,7 @@
 
 #include <kernel/PIT.h>
 #include <kernel/PIC.h>
-#include <kernel/IDT.h>
+#include <kernel/cpu/IDT.h>
 #include <kernel/VGA.h>
 
 //-----------------------------------------------

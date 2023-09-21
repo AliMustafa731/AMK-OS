@@ -1,6 +1,8 @@
 #ifndef bootinfo_included
 #define bootinfo_included
 
+#include <libc/stdint.h>
+
 // Structures for Info passed from the BIOS
 typedef struct _Memory_region_t
 {

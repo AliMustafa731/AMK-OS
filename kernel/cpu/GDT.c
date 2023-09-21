@@ -1,5 +1,5 @@
 
-#include <kernel/GDT.h>
+#include <kernel/cpu/GDT.h>
 #include <libc/string.h>
 
 static GDT_Descriptor_t GDT_Table[GDT_ENTRIES];

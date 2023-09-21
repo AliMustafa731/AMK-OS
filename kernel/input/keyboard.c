@@ -1,7 +1,7 @@
 
-#include <kernel/keyboard.h>
+#include <kernel/input/keyboard.h>
 #include <kernel/hardware.h>
-#include <kernel/IDT.h>
+#include <kernel/cpu/IDT.h>
 #include <kernel/PIC.h>
 #include <kernel/VGA.h>
 

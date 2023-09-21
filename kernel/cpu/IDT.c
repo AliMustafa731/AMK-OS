@@ -1,5 +1,5 @@
 
-#include <kernel/IDT.h>
+#include <kernel/cpu/IDT.h>
 #include <kernel/VGA.h>
 #include <libc/string.h>
 

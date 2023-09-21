@@ -1,13 +1,13 @@
 
 #include <kernel/hardware.h>
-#include <kernel/mmngr_physical.h>
-#include <kernel/mmngr_virtual.h>
-#include <kernel/IDT.h>
-#include <kernel/GDT.h>
+#include <kernel/memory/mem_physical.h>
+#include <kernel/memory/mem_virtual.h>
+#include <kernel/cpu/IDT.h>
+#include <kernel/cpu/GDT.h>
 #include <kernel/PIC.h>
 #include <kernel/PIT.h>
-#include <kernel/exception.h>
-#include <kernel/keyboard.h>
+#include <kernel/cpu/exception.h>
+#include <kernel/input/keyboard.h>
 
 void Hardware_init()
 {
