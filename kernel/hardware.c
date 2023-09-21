@@ -7,6 +7,7 @@
 #include <kernel/PIC.h>
 #include <kernel/PIT.h>
 #include <kernel/exception.h>
+#include <kernel/keyboard.h>
 
 void Hardware_init()
 {
@@ -15,6 +16,8 @@ void Hardware_init()
     PIC_init(32, 40);
     PIT_init();
     Exceptions_init();
+    Keyboard_init();
+
 }
 
 inline void Hardware_interrupt_done(uint8_t irq_num)
