@@ -1,9 +1,9 @@
 
-#include <kernel/hardware.h>
+#include <kernel/hardware/hardware.h>
 #include <kernel/memory/mem_physical.h>
 #include <kernel/memory/mem_virtual.h>
-#include <kernel/PIT.h>
-#include <kernel/VGA.h>
+#include <kernel/hardware/PIT.h>
+#include <kernel/graphics/VGA.h>
 #include <kernel/bootinfo.h>
 #include <libc/stdint.h>
 #include <libc/string.h>
@@ -17,39 +17,31 @@ char* str_memory_types[] =
     "ACPI NVS Memory"   //memory_region.type == 4
 };
 
-// these parameters are passed from the Bootloader
+//------------------------------------
+//   Kernel Main Entry
+//   these parameters are passed
+//   from the Bootloader
+//------------------------------------
 void kernel_main(Multiboot_info_t *boot_info, Memory_region_t *mem_regions)
 {
     // initialize some hardware devices
-    Hardware_init();
-    PIT_start_counter(0xFFFF, PIT_OCW_COUNTER_0, PIT_OCW_MODE_SQUAREWAVEGEN);
-    VGA_set_color(0x3F);
-
-    // initialize memory map
-    uint32_t mem_size = 1024 + boot_info->m_memoryLo + boot_info->m_memoryHi * 64;
-    MMngr_init(mem_size);
-
-    // print stuff
-    clear_screen();
+    Hardware_init(boot_info, mem_regions);
     __asm__("sti");
 
-    printf("Drive number : 0x%x, Memory %i MB\n", boot_info->m_bootDevice, mem_size / 1024);
-    print("Physical Memory map :\n");
+    // print stuff
+    VGA_set_color(0x3F);
+    clear_screen();
+
+    // memory size in KB
+    uint32_t mem_size = 1024 + boot_info->m_memoryLo + boot_info->m_memoryHi * 64;
+    printf("Total memory MB : %i\n", mem_size / 1024);
 
     // print the memory map
     for (int i = 0 ; i < 15 ; i++)
     {
-        if (mem_regions[i].type > 4) // if type is > 4 mark it reserved
+        if ( i != 0 && mem_regions[i].startLo == 0)
         {
-            mem_regions[i].type = 2;
-        }
-        
-        // if start address is 0, there is no more entries, break out
-        if (i > 0 && mem_regions[i].startLo == 0) { break; }
-
-        if (mem_regions[i].type == 1) // enable available regions
-        {
-            MMngr_enable_region(mem_regions[i].startLo, mem_regions[i].sizeLo);
+            break;
         }
 
         printf ("region %i: start: 0x%x%x length (bytes): 0x%x%x type: %i (%s)\n", i, 
@@ -57,12 +49,6 @@ void kernel_main(Multiboot_info_t *boot_info, Memory_region_t *mem_regions)
         mem_regions[i].sizeHi,  mem_regions[i].sizeLo,
         mem_regions[i].type,    str_memory_types[mem_regions[i].type-1]);
     }
-
-    // the first 4MB are reserved
-    MMngr_disable_region(0, 0x400000);
-
-    // enable paging
-    VMMngr_init();
 
     print("\nCurrent Memory Blocks : 4KB each\n");
     printf("Total : %i, Used : %i, Free : %i\n",

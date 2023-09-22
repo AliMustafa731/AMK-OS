@@ -1,6 +1,6 @@
 
-#include <kernel/PIC.h>
-#include <kernel/hardware.h>
+#include <kernel/hardware/PIC.h>
+#include <kernel/hardware/hardware.h>
 
 //-----------------------------------------------
 //  Programable Interrupt Controller

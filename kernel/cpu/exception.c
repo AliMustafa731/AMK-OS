@@ -1,8 +1,8 @@
 
 #include <kernel/cpu/exception.h>
-#include <kernel/hardware.h>
+#include <kernel/hardware/hardware.h>
 #include <kernel/cpu/IDT.h>
-#include <kernel/VGA.h>
+#include <kernel/graphics/VGA.h>
 
 //------------------------------------
 //  exception handlers

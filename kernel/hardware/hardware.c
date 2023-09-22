@@ -1,15 +1,15 @@
 
-#include <kernel/hardware.h>
+#include <kernel/hardware/hardware.h>
 #include <kernel/memory/mem_physical.h>
 #include <kernel/memory/mem_virtual.h>
 #include <kernel/cpu/IDT.h>
 #include <kernel/cpu/GDT.h>
-#include <kernel/PIC.h>
-#include <kernel/PIT.h>
+#include <kernel/hardware/PIC.h>
+#include <kernel/hardware/PIT.h>
 #include <kernel/cpu/exception.h>
 #include <kernel/input/keyboard.h>
 
-void Hardware_init()
+void Hardware_init(Multiboot_info_t *boot_info, Memory_region_t *mem_regions)
 {
     GDT_init();
     IDT_init(0x8);
@@ -18,6 +18,34 @@ void Hardware_init()
     Exceptions_init();
     Keyboard_init();
 
+    PIT_start_counter(0xFFFF, PIT_OCW_COUNTER_0, PIT_OCW_MODE_SQUAREWAVEGEN);
+
+    // initialize memory map
+    uint32_t mem_size = 1024 + boot_info->m_memoryLo + boot_info->m_memoryHi * 64;
+    MMngr_init(mem_size);
+
+    // print the memory map
+    for (int i = 0 ; i < 15 ; i++)
+    {
+        if (mem_regions[i].type > 4) // if type is > 4 mark it reserved
+        {
+            mem_regions[i].type = 2;
+        }
+        
+        // if start address is 0, there is no more entries, break out
+        if (i > 0 && mem_regions[i].startLo == 0) { break; }
+
+        if (mem_regions[i].type == 1) // enable available regions
+        {
+            MMngr_enable_region(mem_regions[i].startLo, mem_regions[i].sizeLo);
+        }
+    }
+
+    // the first 4MB are reserved
+    MMngr_disable_region(0, 0x400000);
+
+    // enable paging
+    VMMngr_init();
 }
 
 inline void Hardware_interrupt_done(uint8_t irq_num)

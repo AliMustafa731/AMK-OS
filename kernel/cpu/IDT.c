@@ -1,6 +1,6 @@
 
 #include <kernel/cpu/IDT.h>
-#include <kernel/VGA.h>
+#include <kernel/graphics/VGA.h>
 #include <libc/string.h>
 
 static IDT_Descriptor_t IDT_Table[IDT_MAX_INTERRUPTS];

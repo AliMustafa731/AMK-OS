@@ -11,7 +11,7 @@ extern void Keyboard_init();
 
 extern int isKeyDown(uint32_t key);
 
-typedef void (*KeyboardCallBack)(int);
+extern uint8_t key_to_ASCI(int code);
 
 //-----------------------------
 //   listeners list
@@ -24,7 +24,11 @@ typedef struct _ListenerList_t
 
 extern void ListenerList_add(ListenerList_t *list, uintptr_t handle);
 
-extern void AddKeyboardListener(KeyboardCallBack function);
+typedef void (*KeyboardCallBack)(int);
+
+extern void AddKeyPressedListener(KeyboardCallBack function);
+
+extern void AddKeyReleasedListener(KeyboardCallBack function);
 
 //==============================
 //   Key Codes

@@ -1,8 +1,8 @@
 
-#include <kernel/PIT.h>
-#include <kernel/PIC.h>
+#include <kernel/hardware/PIT.h>
+#include <kernel/hardware/PIC.h>
 #include <kernel/cpu/IDT.h>
-#include <kernel/VGA.h>
+#include <kernel/graphics/VGA.h>
 
 //-----------------------------------------------
 //    Programmable Interval Timer

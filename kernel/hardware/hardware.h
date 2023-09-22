@@ -2,8 +2,9 @@
 #define hardware_included
 
 #include <libc/stdint.h>
+#include <kernel/bootinfo.h>
 
-extern void Hardware_init();
+extern void Hardware_init(Multiboot_info_t *boot_info, Memory_region_t *mem_regions);
 
 extern void Hardware_interrupt_done(uint8_t irq_num);
 

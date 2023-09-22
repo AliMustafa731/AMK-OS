@@ -1,7 +1,7 @@
 #ifndef pit_included
 #define pit_included
 
-#include <kernel/hardware.h>
+#include <kernel/hardware/hardware.h>
 
 //-----------------------------------------------
 //    Programmable Interval Timer

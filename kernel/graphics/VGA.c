@@ -1,6 +1,6 @@
 
-#include <kernel/VGA.h>
-#include <kernel/hardware.h>
+#include <kernel/graphics/VGA.h>
+#include <kernel/hardware/hardware.h>
 #include <libc/string.h>
 
 #define VIDEO_MEMORY 0xB8000

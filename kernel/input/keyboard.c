@@ -1,9 +1,10 @@
 
 #include <kernel/input/keyboard.h>
-#include <kernel/hardware.h>
+#include <kernel/hardware/hardware.h>
 #include <kernel/cpu/IDT.h>
-#include <kernel/PIC.h>
-#include <kernel/VGA.h>
+#include <kernel/hardware/PIC.h>
+#include <kernel/graphics/VGA.h>
+#include <libc/string.h>
 
 //==============================
 //   Keyboard Interface
@@ -152,10 +153,10 @@ static int keyboard_scancodes[] = {
     KEY_KP_NUMLOCK,    //0x45
     KEY_SCROLLLOCK,    //0x46
     KEY_HOME,          //0x47
-    KEY_KP_8,          //0x48    //keypad up arrow
+    KEY_UP,            //0x48    //keypad up arrow
     KEY_PAGEUP,        //0x49
     0, 0, 0, 0, 0, 0,  //0x4A - 0x4F
-    KEY_KP_2,          //0x50    //keypad down arrow
+    KEY_DOWN,          //0x50    //keypad down arrow
     KEY_KP_3,          //0x51    //keypad page down
     KEY_KP_0,          //0x52    //keypad insert key
     KEY_KP_DECIMAL,    //0x53    //keypad delete key
@@ -175,31 +176,60 @@ static int _capslock = 0;
 static int _numlock = 0;
 static int _scrolllock = 0;
 
-static char keyboard_keys[512]; 
+static char keyboard_keys[512];
 
-static ListenerList_t keyboard_listeners = { 0 };
+static ListenerList_t key_pressed_listeners = { 0 };
+
+static ListenerList_t key_released_listeners = { 0 };
 
 //===========================
 //   Keyboard Interface
 //===========================
 
 void keyboard_interrupt_handler();
+
 uint8_t keyboard_ctrl_read_status();
+
 uint8_t keyboard_enc_read_buffer();
+
 void keyboard_ctrl_send_command(uint8_t command);
+
 void keyboard_enc_send_command(uint8_t command);
+
 void keyboard_set_LEDs(int num, int caps, int scroll);
+
 uint8_t key_to_ASCI(int code);
 
+//----------------------------
+//   Initialize
+//----------------------------
 void Keyboard_init()
 {
     // install interrupt handler
     IDT_install_int(PIC_INT_KEYBOARD, (uintptr_t)keyboard_interrupt_handler, 0x8, IDT_DESC_32_BIT | IDT_DESC_SEG_PRESENT);
+
+    memset(&key_pressed_listeners, 0, sizeof(ListenerList_t));
+    memset(&key_released_listeners, 0, sizeof(ListenerList_t));
 }
 
-void AddKeyboardListener(KeyboardCallBack function)
+//-------------------------------
+//   Listeners List
+//-------------------------------
+
+void ListenerList_add(ListenerList_t *list, uintptr_t handle)
 {
-    ListenerList_add(&keyboard_listeners, (uintptr_t)function);
+    list->handelers[list->counter] = handle;
+    list->counter += sizeof(uintptr_t);
+}
+
+void AddKeyPressedListener(KeyboardCallBack function)
+{
+    ListenerList_add(&key_pressed_listeners, (uintptr_t)function);
+}
+
+void AddKeyReleasedListener(KeyboardCallBack function)
+{
+    ListenerList_add(&key_released_listeners, (uintptr_t)function);
 }
 
 int isKeyDown(uint32_t key)
@@ -235,7 +265,7 @@ void keyboard_interrupt_handler()
         {
             is_extended = 0;
 
-            if (code & 0x80) // test 8th bit, is this a 'Break' code ?, key released
+            if (code & 0x80) // test 8th bit, 'Break' code, key released
             {
                 code &= ~(0x80); // convert to 'Make' code
 
@@ -253,6 +283,14 @@ void keyboard_interrupt_handler()
                 else if (key == KEY_LSHIFT || key == KEY_RSHIFT)
                 {
                     _shift = 0;
+                }
+
+                keyboard_keys[key] = 0;
+
+                for (int i = 0 ; i < key_released_listeners.counter ; i++)
+                {
+                    KeyboardCallBack func = (KeyboardCallBack)key_released_listeners.handelers[i];
+                    func(key);
                 }
             }
             else // 'Make code', key pressed
@@ -290,9 +328,11 @@ void keyboard_interrupt_handler()
                     keyboard_set_LEDs(_numlock, _capslock, _scrolllock);
                 }
 
-                for (int i = 0 ; i < keyboard_listeners.counter ; i++)
+                keyboard_keys[key] = 1;
+
+                for (int i = 0 ; i < key_pressed_listeners.counter ; i++)
                 {
-                    KeyboardCallBack func = (KeyboardCallBack)keyboard_listeners.handelers[i];
+                    KeyboardCallBack func = (KeyboardCallBack)key_pressed_listeners.handelers[i];
                     func(key);
                 }
 
@@ -340,10 +380,10 @@ uint8_t key_to_ASCI(int code)
                         key = KEY_AT;
                         break;
                     case '3':
-                        key = KEY_EXCLAMATION;
+                        key = KEY_HASH;
                         break;
                     case '4':
-                        key = KEY_HASH;
+                        key = KEY_DOLLAR;
                         break;
                     case '5':
                         key = KEY_PERCENT;
@@ -418,12 +458,6 @@ uint8_t key_to_ASCI(int code)
     }
 
     return 0;
-}
-
-void ListenerList_add(ListenerList_t *list, uintptr_t handle)
-{
-    list->handelers[list->counter] = handle;
-    list->counter += sizeof(uintptr_t);
 }
 
 void keyboard_set_LEDs(int num, int caps, int scroll)
