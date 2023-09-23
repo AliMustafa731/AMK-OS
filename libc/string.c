@@ -1,6 +1,24 @@
 
 #include <libc/string.h>
 
+int strcmp(uint8_t *str1, uint8_t *str2)
+{
+    int result = 1;
+
+    while (*str1 != 0 && *str2 != 0)
+    {
+        if (*str1 != *str2)
+        {
+            result = 0;
+            break;
+        }
+        str1++;
+        str2++;
+    }
+
+    return result;
+}
+
 size_t strlen(uint8_t *str)
 {
     size_t len = 0;

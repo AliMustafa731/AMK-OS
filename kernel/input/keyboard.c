@@ -178,9 +178,9 @@ static int _scrolllock = 0;
 
 static char keyboard_keys[512];
 
-static ListenerList_t key_pressed_listeners = { 0 };
+static ListenerList_t key_pressed_listeners;
 
-static ListenerList_t key_released_listeners = { 0 };
+static ListenerList_t key_released_listeners;
 
 //===========================
 //   Keyboard Interface
@@ -210,6 +210,8 @@ void Keyboard_init()
 
     memset(&key_pressed_listeners, 0, sizeof(ListenerList_t));
     memset(&key_released_listeners, 0, sizeof(ListenerList_t));
+    key_pressed_listeners.counter = 0;
+    key_released_listeners.counter = 0;
 }
 
 //-------------------------------
@@ -218,18 +220,18 @@ void Keyboard_init()
 
 void ListenerList_add(ListenerList_t *list, uintptr_t handle)
 {
-    list->handelers[list->counter] = handle;
-    list->counter += sizeof(uintptr_t);
+    list->handlers[list->counter] = handle;
+    list->counter++;
 }
 
-void AddKeyPressedListener(KeyboardCallBack function)
+void AddKeyPressedListener(uintptr_t function)
 {
-    ListenerList_add(&key_pressed_listeners, (uintptr_t)function);
+    ListenerList_add(&key_pressed_listeners, function);
 }
 
-void AddKeyReleasedListener(KeyboardCallBack function)
+void AddKeyReleasedListener(uintptr_t function)
 {
-    ListenerList_add(&key_released_listeners, (uintptr_t)function);
+    ListenerList_add(&key_released_listeners, function);
 }
 
 int isKeyDown(uint32_t key)
@@ -289,7 +291,7 @@ void keyboard_interrupt_handler()
 
                 for (int i = 0 ; i < key_released_listeners.counter ; i++)
                 {
-                    KeyboardCallBack func = (KeyboardCallBack)key_released_listeners.handelers[i];
+                    KeyboardCallBack func = (KeyboardCallBack)key_released_listeners.handlers[i];
                     func(key);
                 }
             }
@@ -332,12 +334,9 @@ void keyboard_interrupt_handler()
 
                 for (int i = 0 ; i < key_pressed_listeners.counter ; i++)
                 {
-                    KeyboardCallBack func = (KeyboardCallBack)key_pressed_listeners.handelers[i];
+                    KeyboardCallBack func = (KeyboardCallBack)key_pressed_listeners.handlers[i];
                     func(key);
                 }
-
-                char character[2] = {key_to_ASCI(key), 0};
-                if (isASCI(key)) print(character);
             }
         }
     }

@@ -18,7 +18,7 @@ extern uint8_t key_to_ASCI(int code);
 //----------------------------
 typedef struct _ListenerList_t
 {
-    uintptr_t handelers[64];
+    uintptr_t handlers[64];
     uint32_t counter;
 } ListenerList_t;
 
@@ -26,9 +26,9 @@ extern void ListenerList_add(ListenerList_t *list, uintptr_t handle);
 
 typedef void (*KeyboardCallBack)(int);
 
-extern void AddKeyPressedListener(KeyboardCallBack function);
+extern void AddKeyPressedListener(uintptr_t function);
 
-extern void AddKeyReleasedListener(KeyboardCallBack function);
+extern void AddKeyReleasedListener(uintptr_t function);
 
 //==============================
 //   Key Codes

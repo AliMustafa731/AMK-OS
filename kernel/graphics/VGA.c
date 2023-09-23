@@ -3,15 +3,23 @@
 #include <kernel/hardware/hardware.h>
 #include <libc/string.h>
 
-#define VIDEO_MEMORY 0xB8000
-#define VIDEO_MEMORY_LIMIT 0xB8FA0
-#define WIDTH 80
-#define HEIGHT 25
 
-static int VGA_current_x = 0;
-static int VGA_current_y = 0;
-static int VGA_current_mem = 0;
-static uint8_t VGA_color = 0x0E;
+int VGA_current_x = 0;
+int VGA_current_y = 0;
+int VGA_current_mem = 0;
+uint8_t VGA_color = 0x0E;
+
+void Check_NEW_LINE()
+{
+    VGA_current_y = (VGA_current_mem / 2) / VGA_WIDTH;
+    
+    if (VGA_current_y >= VGA_HEIGHT)
+    {
+        VGA_current_y = VGA_HEIGHT - 1;
+
+        memcpy((void*)(VIDEO_MEMORY), (void*)(VIDEO_MEMORY + (VGA_WIDTH * 2)), (VGA_WIDTH * (VGA_HEIGHT - 1)) * 2);
+    }
+}
 
 void VGA_set_color(uint8_t color)
 {
@@ -42,7 +50,7 @@ void print(uint8_t* text)
 
     while(*c != 0)
     {
-        if (*c == 0x0A)
+        if (*c == '\n')
         {
             print_nl();
         }
@@ -54,8 +62,8 @@ void print(uint8_t* text)
         c++;
     }
 
-    VGA_current_x = (VGA_current_mem / 2) % WIDTH;
-    VGA_current_y = (VGA_current_mem / 2) / WIDTH;
+    VGA_current_x = (VGA_current_mem / 2) % VGA_WIDTH;
+    VGA_current_y = (VGA_current_mem / 2) / VGA_WIDTH;
 
     update_cursor(VGA_current_x, VGA_current_y);
 }
@@ -69,7 +77,7 @@ void printf(uint8_t* text, ...)
 
     while(*c != 0)
     {
-        if (*c == 0x0A)
+        if (*c == '\n')
         {
             print_nl();
         }
@@ -108,8 +116,8 @@ void printf(uint8_t* text, ...)
         c++;
     }
 
-    VGA_current_x = (VGA_current_mem / 2) % WIDTH;
-    VGA_current_y = (VGA_current_mem / 2) / WIDTH;
+    VGA_current_x = (VGA_current_mem / 2) % VGA_WIDTH;
+    VGA_current_y = (VGA_current_mem / 2) / VGA_WIDTH;
 
     update_cursor(VGA_current_x, VGA_current_y);
 }
@@ -118,14 +126,16 @@ void print_nl()
 {
     VGA_current_x = 0;
     VGA_current_y += 1;
-    VGA_current_mem = VGA_current_y * WIDTH * 2;
+    VGA_current_mem = VGA_current_y * VGA_WIDTH * 2;
+
+    Check_NEW_LINE();
 
     update_cursor(VGA_current_x, VGA_current_y);
 }
 
 void update_cursor(int x, int y)
 {
-    uint16_t pos = x + y * WIDTH;
+    uint16_t pos = x + y * VGA_WIDTH;
 
     // 0x3D4 VGA index register port
     // 0x3D5 VGA data register port
@@ -133,4 +143,13 @@ void update_cursor(int x, int y)
     port_byte_out(0x3D5, HIGH_BYTE(pos));
     port_byte_out(0x3D4, 0xF); // 0x0F cursor position low byte
     port_byte_out(0x3D5, LOW_BYTE(pos));
+}
+
+void VGA_update_position(int linear)
+{
+    VGA_current_mem = linear;
+    VGA_current_x = (VGA_current_mem / 2) % VGA_WIDTH;
+    VGA_current_y = (VGA_current_mem / 2) / VGA_WIDTH;
+
+    update_cursor(VGA_current_x, VGA_current_y);
 }

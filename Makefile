@@ -9,7 +9,7 @@ qemu = D:\Files\Programs\qemu\qemu-system-i386
 dd = tools\dd
 
 BUILD_DIR = build
-FOLDERS = kernel kernel\cpu kernel\input \
+FOLDERS = kernel kernel\cpu kernel\input kernel\user \
 kernel\memory libc kernel\hardware kernel\graphics
 
 KERNEL_C    := $(wildcard kernel/*.c kernel/*/*.c libc/*.c libc/*/*.c)

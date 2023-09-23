@@ -3,6 +3,8 @@
 
 #include <libc/stdint.h>
 
+extern int strcmp(uint8_t *str1, uint8_t *str2);
+
 extern size_t strlen(uint8_t *str);
 
 extern void strcpy(uint8_t *str1, uint8_t *str2);
