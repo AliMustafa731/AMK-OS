@@ -2,6 +2,7 @@
 #include <kernel/graphics/VGA.h>
 #include <kernel/hardware/hardware.h>
 #include <libc/string.h>
+#include <libc/stdarg.h>
 
 #define MAKE_WORD(x, y) (uint16_t)((x) << 8 | (y))
 
@@ -115,7 +116,8 @@ void printf(uint8_t* text, ...)
 {
     uint8_t* c = text;
 
-    uint8_t *args = (uint8_t*)&text + sizeof(text);
+    va_list args;
+    va_start(args, text);
 
     while(*c != 0)
     {
@@ -125,13 +127,13 @@ void printf(uint8_t* text, ...)
 
             if (*c == 's')
             {
-                uint8_t* str = *((uint8_t**)args);  args += sizeof(uint8_t*);
+                uint8_t* str = va_arg(args, uint8_t*);
 
                 print(str);
             }
             else if (*c == 'i')
             {
-                uint32_t val = *((uint32_t*)args);  args += sizeof(uint32_t);
+                uint32_t val = va_arg(args, uint32_t);
 
                 uint8_t buff[15];
                 int_to_string(val, buff);
@@ -139,7 +141,7 @@ void printf(uint8_t* text, ...)
             }
             else if (*c == 'x')
             {
-                uint32_t val = *((uint32_t*)args);  args += sizeof(uint32_t);
+                uint32_t val = va_arg(args, uint32_t);
                 
                 uint8_t buff[15];
                 hex_to_string(val, buff);
