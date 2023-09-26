@@ -92,7 +92,7 @@ void ParseCommand(char* text)
 
 void keyboard_listener(int key)
 {
-    char asci[2] = {key_to_ASCI(key), 0};
+    char asci = key_to_ASCI(key);
 
     if(key == KEY_KP_ENTER)
     {
@@ -102,23 +102,14 @@ void keyboard_listener(int key)
     else if (key == KEY_BACKSPACE)
     {
         // reached end of current line
-        if (cmd_current_line >= VGA_current_mem)
+        if (VGA_current_mem > cmd_current_line)
         {
-            return;
+            print_char('\b');
         }
-
-        uint8_t* mem = (uint8_t*)VIDEO_MEMORY;
-
-        if (VGA_current_mem <= 0) { VGA_current_mem = 0; }
-
-        VGA_current_mem -= 2;
-        mem[VGA_current_mem] = 0;
-        
-        VGA_update_position(VGA_current_mem);
     }
     else if (isASCI(key))
     {
-        TextBuffer_Append(&cmd_buffer, asci[0]);
-        print(asci);
+        TextBuffer_Append(&cmd_buffer, asci);
+        print_char(asci);
     }
 }
